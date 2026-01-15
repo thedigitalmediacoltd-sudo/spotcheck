@@ -79,23 +79,25 @@ export default function DashboardScreen() {
     }
   };
 
-  const getNextExpiry = () => {
+  // Memoize expensive calculations to prevent recalculation on every render
+  const nextExpiry = useMemo(() => {
     const urgentItems = items.filter(item => {
       const days = calculateDaysUntilExpiry(item.expiry_date);
       return days !== null && days <= 30;
     });
     return urgentItems.length > 0 ? urgentItems[0] : null;
-  };
+  }, [items]);
 
-  const calculateTotalSavings = (): number => {
+  const totalSavings = useMemo((): number => {
     return items
       .filter(item => item.is_main_dealer === true)
       .reduce((sum, item) => {
         return sum + (item.cost_monthly || 0) * 0.3;
       }, 0);
-  };
+  }, [items]);
 
   // Filter items based on search query and selected chip
+  // Memoize heavy filter logic to prevent recalculation on every render
   const filteredItems = useMemo(() => {
     let filtered = filter === 'urgent' 
       ? items.filter(item => {
@@ -258,8 +260,7 @@ export default function DashboardScreen() {
     );
   };
 
-  const nextExpiry = getNextExpiry();
-  const totalSavings = calculateTotalSavings();
+    // nextExpiry and totalSavings are now memoized above
 
   return (
     <GestureHandlerRootView className="flex-1">
@@ -473,8 +474,8 @@ export default function DashboardScreen() {
             data={filteredItems}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
-            estimatedItemSize={80}
-            drawDistance={200}
+            estimatedItemSize={85}
+            drawDistance={250}
             refreshing={isLoading}
             onRefresh={() => refetch()}
             contentContainerStyle={{ paddingVertical: 8, paddingBottom: 100 }}
