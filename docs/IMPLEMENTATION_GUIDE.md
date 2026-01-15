@@ -31,9 +31,10 @@
 21. [Packet 12.0: The Trust Adjustment](#packet-120-the-trust-adjustment)
 22. [Packet 12.5: Apple Human Interface Guidelines (Text Audit)](#packet-125-apple-human-interface-guidelines-text-audit)
 23. [Packet 13.0: High-Impact Optimizations](#packet-130-high-impact-optimizations)
-24. [Database Schema](#database-schema)
-25. [Environment Variables](#environment-variables)
-26. [Deployment Checklist](#deployment-checklist)
+24. [Packet 14.0: Automated Versioning](#packet-140-automated-versioning)
+25. [Database Schema](#database-schema)
+26. [Environment Variables](#environment-variables)
+27. [Deployment Checklist](#deployment-checklist)
 
 ---
 
@@ -962,6 +963,89 @@ export async function signUpWithEmail(email: string, password: string)
 
 ---
 
+## Packet 14.0: Automated Versioning
+
+### Objectives
+- Automate version and build number management
+- Create single source of truth for marketing version
+- Integrate version bumping into build process
+- Ensure consistency across iOS and Android builds
+
+### Implementation
+
+#### Source of Truth (`VERSION`)
+- **File:** Root-level `VERSION` file
+- **Content:** Marketing version (e.g., `1.0.0`, `1.0.1`, `1.1.0`)
+- **Purpose:** Single source of truth for the app's visible version
+- **Usage:** Manually update this file when releasing a new version
+
+#### Versioning Script (`scripts/bump.js`)
+- **Language:** Node.js
+- **Functionality:**
+  1. Reads `VERSION` file (marketing version)
+  2. Reads `app.json`
+  3. Increments iOS `buildNumber` (string format)
+  4. Increments Android `versionCode` (integer format)
+  5. Updates `expo.version` to match `VERSION` file
+  6. Writes changes back to `app.json` with proper formatting
+  7. Logs changes for verification
+- **Error Handling:**
+  - Validates `VERSION` file exists and is not empty
+  - Handles missing iOS/Android sections in `app.json`
+  - Provides clear error messages on failure
+- **Output:** Console logs showing updated version and build numbers
+
+#### Package.json Scripts
+- **`npm run bump`** - Manually run version bump
+- **`npm run build:ios`** - Auto-bump version, then build iOS
+- **`npm run build:android`** - Auto-bump version, then build Android
+- **Integration:** Seamlessly integrates with EAS Build workflow
+
+#### App.json Configuration
+- **Initial Values:**
+  - `expo.ios.buildNumber: "1"` - iOS build number (string)
+  - `expo.android.versionCode: 1` - Android version code (integer)
+- **Auto-Updated:** Both values increment automatically on each build
+- **Version Sync:** `expo.version` automatically syncs with `VERSION` file
+
+### Workflow
+
+#### For New Releases
+1. **Update Marketing Version:**
+   ```bash
+   # Edit VERSION file manually
+   # Change: 1.0.0 → 1.0.1 (or 1.1.0, 2.0.0, etc.)
+   ```
+
+2. **Build with Auto-Bump:**
+   ```bash
+   npm run build:ios      # Bumps build number, then builds iOS
+   npm run build:android  # Bumps version code, then builds Android
+   ```
+
+3. **Manual Bump (if needed):**
+   ```bash
+   npm run bump  # Just bump version/build numbers without building
+   ```
+
+### Benefits
+- **Consistency:** Version always matches across platforms
+- **Automation:** No manual editing of `app.json` for builds
+- **Traceability:** Clear separation between marketing version and build numbers
+- **CI/CD Ready:** Easy to integrate into automated build pipelines
+
+### File Structure
+```
+spotcheck-app/
+├── VERSION              # Source of truth (marketing version)
+├── app.json             # Auto-updated by bump script
+├── scripts/
+│   └── bump.js          # Versioning automation script
+└── package.json         # Build scripts with version bumping
+```
+
+---
+
 ## Database Schema
 
 ### Tables
@@ -1013,6 +1097,14 @@ CREATE TABLE profiles (
 
 ## Environment Variables
 
+### Setup
+1. Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+2. Fill in your actual Supabase credentials in `.env`
+3. Restart Expo development server after changes
+
 ### Required Variables
 ```env
 EXPO_PUBLIC_SUPABASE_URL=https://[YOUR_PROJECT_REF].supabase.co
@@ -1020,9 +1112,15 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=[YOUR_ANON_KEY]
 EXPO_PUBLIC_SUPABASE_REDIRECT_URL=spotcheck://
 ```
 
+### Where to Find Values
+- **EXPO_PUBLIC_SUPABASE_URL**: Supabase Dashboard → Project Settings → API → Project URL
+- **EXPO_PUBLIC_SUPABASE_ANON_KEY**: Supabase Dashboard → Project Settings → API → `anon` `public` key
+- **EXPO_PUBLIC_SUPABASE_REDIRECT_URL**: Should match your app scheme (default: `spotcheck://`)
+
 ### Supabase Edge Functions
-- `analyze-doc`: Requires `GEMINI_API_KEY` environment variable
-- `chat-coach`: Requires `GEMINI_API_KEY` environment variable
+- `analyze-doc`: Requires `GEMINI_API_KEY` environment variable (set in Supabase Dashboard)
+- `chat-coach`: Requires `GEMINI_API_KEY` environment variable (set in Supabase Dashboard)
+- **Note:** Edge Function environment variables are set in Supabase Dashboard, not in `.env` file
 
 ---
 
@@ -1146,7 +1244,7 @@ See `package.json` for complete list. Major dependencies:
 
 **End of Implementation Guide**
 
-This document covers all features and implementations from Packet 1 through Packet 13.0. The app is production-ready and follows Apple's Human Interface Guidelines, with a focus on privacy, accessibility, user experience, and performance optimization.
+This document covers all features and implementations from Packet 1 through Packet 14.0. The app is production-ready and follows Apple's Human Interface Guidelines, with a focus on privacy, accessibility, user experience, performance optimization, and automated deployment workflows.
 
 ### Related Documentation
 - See `docs/OPTIMIZATION_BACKLOG.md` for post-launch optimization opportunities (V1.1+)
