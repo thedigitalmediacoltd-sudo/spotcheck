@@ -7,6 +7,9 @@ import { scanDocument } from '@/services/ocr';
 import { analyzeText } from '@/services/analysis';
 import { triggerHaptic, triggerSound } from '@/services/sensory';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { usePaywall } from '@/context/PaywallContext';
+import { useAuth } from '@/context/AuthContext';
+import { PaywallError } from '@/services/paywall';
 import { TabBar } from '@/components/TabBar';
 import { Toast } from '@/components/Toast';
 
@@ -20,6 +23,8 @@ export default function ScanScreen() {
   const cameraRef = useRef<CameraView>(null);
   const router = useRouter();
   const { isOffline } = useNetworkStatus();
+  const { showPaywall } = usePaywall();
+  const { user } = useAuth();
 
   useEffect(() => {
     // Check if reduce transparency is enabled
@@ -56,7 +61,7 @@ export default function ScanScreen() {
     if (!cameraRef.current) return;
 
     if (isOffline) {
-      setToastMessage('You are offline. Reconnect to scan.');
+      setToastMessage('No Internet Connection. Reconnect to scan.');
       setToastVisible(true);
       return;
     }
@@ -73,7 +78,7 @@ export default function ScanScreen() {
         throw new Error('Failed to capture photo');
       }
 
-      const extractedText = await scanDocument(photo.uri);
+      const extractedText = await scanDocument(photo.uri, user?.id);
 
       if (!extractedText || extractedText.trim().length === 0) {
         Alert.alert(
@@ -103,6 +108,13 @@ export default function ScanScreen() {
         },
       });
     } catch (error) {
+      if (error instanceof PaywallError) {
+        // Show paywall for scan limit
+        setIsAnalyzing(false);
+        showPaywall();
+        return;
+      }
+
       if (__DEV__) {
         console.error('Scan error:', error);
       }

@@ -8,8 +8,9 @@ import { CategoryIcon } from '@/components/CategoryIcon';
 import { UrgencyBadge } from '@/components/UrgencyBadge';
 import { ActionCard } from '@/components/ActionCard';
 import { Toast } from '@/components/Toast';
+import { addToCalendar } from '@/services/calendar';
 import * as Clipboard from 'expo-clipboard';
-import { ArrowLeft, Copy } from 'lucide-react-native';
+import { ArrowLeft, Copy, CalendarPlus } from 'lucide-react-native';
 
 type Item = Database['public']['Tables']['items']['Row'];
 
@@ -172,6 +173,27 @@ Yours sincerely,
     Alert.alert('Script Copied', 'Legal script has been copied to your clipboard');
   };
 
+  const handleAddToCalendar = async () => {
+    if (!item) return;
+
+    try {
+      await addToCalendar(item);
+      setToastMessage('Reminder Set');
+      setToastVisible(true);
+      Alert.alert('Success', 'Renewal reminder set in your calendar');
+    } catch (error) {
+      if (__DEV__) {
+        console.error('Calendar error:', error);
+      }
+      Alert.alert(
+        'Error',
+        error instanceof Error
+          ? error.message
+          : 'Failed to add to calendar. Please check your calendar permissions.'
+      );
+    }
+  };
+
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-slate-50">
@@ -277,6 +299,22 @@ Yours sincerely,
             >
               <Copy size={20} color="#FFFFFF" />
               <Text className="text-white font-semibold ml-2">Draft Letter</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Add to Calendar Button */}
+        {item.expiry_date && (
+          <View className="mb-4 px-4">
+            <TouchableOpacity
+              onPress={handleAddToCalendar}
+              className="bg-blue-600 py-3 rounded-2xl flex-row items-center justify-center"
+              accessibilityRole="button"
+              accessibilityLabel="Set Reminder"
+              accessibilityHint="Sets a renewal reminder in your calendar"
+            >
+              <CalendarPlus size={20} color="#FFFFFF" />
+              <Text className="text-white font-semibold ml-2">Set Reminder</Text>
             </TouchableOpacity>
           </View>
         )}

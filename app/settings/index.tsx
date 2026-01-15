@@ -13,22 +13,35 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { usePreferences } from '@/hooks/usePreferences';
+import { usePaywall } from '@/context/PaywallContext';
+import { useProfile } from '@/hooks/useProfile';
+import { ProBadge } from '@/components/ProBadge';
 import { X, Crown, Shield, Bell, Volume2, Mail, FileText, Trash2 } from 'lucide-react-native';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { user, signOut } = useAuth();
   const { preferences, isLoading: prefsLoading, updatePreference } = usePreferences();
+  const { showPaywall } = usePaywall();
+  const { profile } = useProfile();
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleUpgrade = () => {
-    // TODO: Implement in-app purchase flow
-    Alert.alert('Upgrade to Pro', 'Pro features coming soon!');
+    showPaywall();
   };
 
-  const handleRestorePurchases = () => {
-    // TODO: Implement restore purchases flow
+  const handleRestorePurchases = async () => {
+    // TODO: Implement RevenueCat restore purchases
     Alert.alert('Restore Purchases', 'Checking for previous purchases...');
+  };
+
+  const handleFaceIDToggle = (value: boolean) => {
+    // Face ID is a Pro feature
+    if (value && !profile?.is_pro) {
+      showPaywall();
+      return;
+    }
+    updatePreference('requireFaceID', value);
   };
 
   const handlePrivacyPolicy = () => {
@@ -176,12 +189,16 @@ export default function SettingsScreen() {
           <>
             {renderRow(
               <Crown size={20} color="#F59E0B" />,
-              'Free Plan',
-              <View className="bg-amber-100 px-3 py-1 rounded-full">
-                <Text className="text-amber-700 text-xs font-semibold">Free</Text>
-              </View>
+              profile?.is_pro ? 'Pro Lifetime' : 'Free Plan',
+              profile?.is_pro ? (
+                <ProBadge size="sm" />
+              ) : (
+                <View className="bg-amber-100 px-3 py-1 rounded-full">
+                  <Text className="text-amber-700 text-xs font-semibold">Free</Text>
+                </View>
+              )
             )}
-            {renderRow(
+            {!profile?.is_pro && renderRow(
               <Crown size={20} color="#F59E0B" />,
               'Upgrade to Pro',
               null,
@@ -203,16 +220,24 @@ export default function SettingsScreen() {
           'App Preferences',
           <>
             {renderRow(
-              <Shield size={20} color="#2563EB" />,
+              <View className="flex-row items-center">
+                <Shield size={20} color="#2563EB" />
+                {!profile?.is_pro && (
+                  <View className="ml-2">
+                    <ProBadge size="sm" />
+                  </View>
+                )}
+              </View>,
               'Require Face ID',
               prefsLoading ? (
                 <ActivityIndicator size="small" color="#2563EB" />
               ) : (
                 <Switch
                   value={preferences.requireFaceID}
-                  onValueChange={(value) => updatePreference('requireFaceID', value)}
+                  onValueChange={handleFaceIDToggle}
                   trackColor={{ false: '#E2E8F0', true: '#93C5FD' }}
                   thumbColor={preferences.requireFaceID ? '#2563EB' : '#F4F4F5'}
+                  disabled={!profile?.is_pro}
                 />
               )
             )}

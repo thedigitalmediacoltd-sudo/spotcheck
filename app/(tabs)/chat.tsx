@@ -12,6 +12,9 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { sendMessage } from '@/services/chat';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { usePaywall } from '@/context/PaywallContext';
+import { useProfile } from '@/hooks/useProfile';
+import { ProBadge } from '@/components/ProBadge';
 import { TabBar } from '@/components/TabBar';
 import { Toast } from '@/components/Toast';
 import { Send } from 'lucide-react-native';
@@ -39,6 +42,8 @@ export default function ChatScreen() {
   const [toastMessage, setToastMessage] = useState('');
   const flatListRef = useRef<FlatList>(null);
   const { isOffline } = useNetworkStatus();
+  const { showPaywall } = usePaywall();
+  const { profile } = useProfile();
 
   useEffect(() => {
     // Scroll to bottom when new messages are added
@@ -51,8 +56,14 @@ export default function ChatScreen() {
     if (!inputText.trim() || !user || isLoading) return;
 
     if (isOffline) {
-      setToastMessage('You are offline. Reconnect to send messages.');
+      setToastMessage('No Internet Connection. Reconnect to send messages.');
       setToastVisible(true);
+      return;
+    }
+
+    // Check if user has Pro (Chat is Pro-only feature)
+    if (!profile?.is_pro) {
+      showPaywall();
       return;
     }
 
@@ -129,12 +140,19 @@ export default function ChatScreen() {
       <View className="flex-1">
         {/* Header */}
         <View className="bg-white border-b border-slate-100 px-6 py-4">
-          <Text 
-            className="text-2xl font-semibold text-slate-900"
-            accessibilityRole="header"
-          >
-            Spot
-          </Text>
+          <View className="flex-row items-center">
+            <Text 
+              className="text-2xl font-semibold text-slate-900"
+              accessibilityRole="header"
+            >
+              Spot
+            </Text>
+            {profile?.is_pro && (
+              <View className="ml-3">
+                <ProBadge size="sm" />
+              </View>
+            )}
+          </View>
           <Text 
             className="text-slate-500 text-sm mt-1"
             accessibilityRole="text"
