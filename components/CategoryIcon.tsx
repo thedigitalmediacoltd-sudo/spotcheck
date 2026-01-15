@@ -1,8 +1,8 @@
 import React from 'react';
-import { Car, Home, Heart, Dumbbell, Shield, FileText } from 'lucide-react-native';
 import { View } from 'react-native';
+import { NativeIcon } from './NativeIcon';
 
-type Category = 'Vehicle' | 'Home/Utilities' | 'Pet' | 'Fitness' | 'Subscription' | 'Insurance' | 'insurance' | 'gov' | 'sub' | 'warranty' | 'contract';
+type Category = 'Vehicle' | 'Home' | 'Home/Utilities' | 'Pet' | 'Fitness' | 'Subscription' | 'Insurance' | 'insurance' | 'gov' | 'sub' | 'warranty' | 'contract' | 'Health' | 'Digital';
 
 interface CategoryIconProps {
   category: Category;
@@ -16,37 +16,45 @@ export function CategoryIcon({ category, size = 24 }: CategoryIconProps) {
       case 'Vehicle':
       case 'gov':
         return {
-          Icon: Car,
+          iconName: 'car' as const,
           bgColor: 'bg-orange-100',
           textColor: 'text-orange-600',
           iconColor: '#EA580C',
         };
+      case 'Home':
       case 'Home/Utilities':
         return {
-          Icon: Home,
+          iconName: 'house' as const,
           bgColor: 'bg-blue-100',
           textColor: 'text-blue-600',
           iconColor: '#2563EB',
         };
+      case 'Digital':
       case 'Subscription':
       case 'sub':
         return {
-          Icon: FileText,
+          iconName: 'file-text' as const,
           bgColor: 'bg-purple-100',
           textColor: 'text-purple-600',
           iconColor: '#9333EA',
         };
       case 'Pet':
+        return {
+          iconName: 'pet' as const,
+          bgColor: 'bg-emerald-100',
+          textColor: 'text-emerald-600',
+          iconColor: '#059669',
+        };
       case 'Fitness':
         return {
-          Icon: category === 'Pet' ? Heart : Dumbbell,
+          iconName: 'fitness' as const,
           bgColor: 'bg-emerald-100',
           textColor: 'text-emerald-600',
           iconColor: '#059669',
         };
       case 'Health':
         return {
-          Icon: Heart,
+          iconName: 'heart' as const,
           bgColor: 'bg-emerald-100',
           textColor: 'text-emerald-600',
           iconColor: '#059669',
@@ -54,7 +62,7 @@ export function CategoryIcon({ category, size = 24 }: CategoryIconProps) {
       case 'Insurance':
       case 'insurance':
         return {
-          Icon: Shield,
+          iconName: 'shield' as const,
           bgColor: 'bg-blue-100',
           textColor: 'text-blue-600',
           iconColor: '#2563EB',
@@ -63,7 +71,7 @@ export function CategoryIcon({ category, size = 24 }: CategoryIconProps) {
       case 'warranty':
       default:
         return {
-          Icon: FileText,
+          iconName: 'file-text' as const,
           bgColor: 'bg-slate-100',
           textColor: 'text-slate-600',
           iconColor: '#475569',
@@ -72,12 +80,10 @@ export function CategoryIcon({ category, size = 24 }: CategoryIconProps) {
   };
 
   const config = getCategoryConfig();
-  const IconComponent = config.Icon;
-  const iconProps = { size, color: config.iconColor };
 
   return (
     <View className={`w-12 h-12 rounded-full ${config.bgColor} items-center justify-center`}>
-      <IconComponent {...iconProps} />
+      <NativeIcon name={config.iconName} size={size} color={config.iconColor} />
     </View>
   );
 }

@@ -1,6 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { AlertTriangle, RefreshCw } from 'lucide-react-native';
+import { NativeIcon } from './NativeIcon';
 
 interface Props {
   children: ReactNode;
@@ -57,7 +57,7 @@ export class ErrorBoundary extends Component<Props, State> {
             <View className="bg-white rounded-3xl p-8 shadow-lg max-w-md w-full">
               <View className="items-center mb-6">
                 <View className="w-20 h-20 rounded-full bg-rose-100 items-center justify-center mb-4">
-                  <AlertTriangle size={40} color="#DC2626" />
+                  <NativeIcon name="warning" size={40} color="#DC2626" />
                 </View>
                 <Text 
                   className="text-2xl font-semibold text-slate-900 mb-2 text-center"
@@ -97,7 +97,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 accessibilityLabel="Reload App"
                 accessibilityHint="Reloads the app to recover from the error"
               >
-                <RefreshCw size={20} color="#FFFFFF" />
+                <NativeIcon name="settings" size={20} color="#FFFFFF" />
                 <Text className="text-white font-semibold ml-2 text-lg">
                   Reload App
                 </Text>

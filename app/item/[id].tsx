@@ -10,7 +10,7 @@ import { ActionCard } from '@/components/ActionCard';
 import { Toast } from '@/components/Toast';
 import { addToCalendar } from '@/services/calendar';
 import * as Clipboard from 'expo-clipboard';
-import { ArrowLeft, Copy, CalendarPlus } from 'lucide-react-native';
+import { NativeIcon } from '@/components/NativeIcon';
 
 type Item = Database['public']['Tables']['items']['Row'];
 
@@ -234,7 +234,7 @@ Yours sincerely,
           accessibilityLabel="Back"
           accessibilityHint="Returns to the previous screen"
         >
-          <ArrowLeft size={20} color="#0F172A" />
+          <NativeIcon name="arrow-left" size={20} color="#0F172A" />
           <Text className="text-slate-900 font-semibold ml-2">Back</Text>
         </TouchableOpacity>
         
@@ -297,7 +297,7 @@ Yours sincerely,
               accessibilityLabel="Copy Draft Letter"
               accessibilityHint="Copies the generated letter to your clipboard"
             >
-              <Copy size={20} color="#FFFFFF" />
+              <NativeIcon name="share" size={20} color="#FFFFFF" />
               <Text className="text-white font-semibold ml-2">Draft Letter</Text>
             </TouchableOpacity>
           </View>
@@ -313,7 +313,7 @@ Yours sincerely,
               accessibilityLabel="Set Reminder"
               accessibilityHint="Sets a renewal reminder in your calendar"
             >
-              <CalendarPlus size={20} color="#FFFFFF" />
+              <NativeIcon name="calendar-plus" size={20} color="#FFFFFF" />
               <Text className="text-white font-semibold ml-2">Set Reminder</Text>
             </TouchableOpacity>
           </View>

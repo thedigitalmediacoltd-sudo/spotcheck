@@ -16,7 +16,7 @@ import { usePreferences } from '@/hooks/usePreferences';
 import { usePaywall } from '@/context/PaywallContext';
 import { useProfile } from '@/hooks/useProfile';
 import { ProBadge } from '@/components/ProBadge';
-import { X, Crown, Shield, Bell, Volume2, Mail, FileText, Trash2 } from 'lucide-react-native';
+import { NativeIcon } from '@/components/NativeIcon';
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -36,11 +36,7 @@ export default function SettingsScreen() {
   };
 
   const handleFaceIDToggle = (value: boolean) => {
-    // Face ID is a Pro feature
-    if (value && !profile?.is_pro) {
-      showPaywall();
-      return;
-    }
+    // Face ID is now free for all users
     updatePreference('requireFaceID', value);
   };
 
@@ -178,17 +174,17 @@ export default function SettingsScreen() {
           accessibilityRole="button"
           accessibilityLabel="Close Settings"
         >
-          <X size={24} color="#64748B" />
+          <NativeIcon name="close" size={24} color="#64748B" />
         </TouchableOpacity>
       </View>
 
       <ScrollView className="flex-1" contentContainerStyle={{ paddingVertical: 16 }}>
         {/* Section 1: Membership */}
         {renderSection(
-          'Membership',
+          'MEMBERSHIP',
           <>
             {renderRow(
-              <Crown size={20} color="#F59E0B" />,
+              <NativeIcon name="crown" size={20} color="#F59E0B" />,
               profile?.is_pro ? 'Pro Lifetime' : 'Free Plan',
               profile?.is_pro ? (
                 <ProBadge size="sm" />
@@ -199,15 +195,15 @@ export default function SettingsScreen() {
               )
             )}
             {!profile?.is_pro && renderRow(
-              <Crown size={20} color="#F59E0B" />,
+              <NativeIcon name="crown" size={20} color="#F59E0B" />,
               'Upgrade to Pro',
               null,
               handleUpgrade,
               true
             )}
             {renderRow(
-              <Crown size={20} color="#F59E0B" />,
-              'Restore Purchases',
+              <NativeIcon name="crown" size={20} color="#F59E0B" />,
+              'Restore Purchase',
               null,
               handleRestorePurchases,
               true
@@ -215,19 +211,12 @@ export default function SettingsScreen() {
           </>
         )}
 
-        {/* Section 2: App Preferences */}
+        {/* Section 2: Security */}
         {renderSection(
-          'App Preferences',
+          'SECURITY',
           <>
             {renderRow(
-              <View className="flex-row items-center">
-                <Shield size={20} color="#2563EB" />
-                {!profile?.is_pro && (
-                  <View className="ml-2">
-                    <ProBadge size="sm" />
-                  </View>
-                )}
-              </View>,
+              <NativeIcon name="shield" size={20} color="#2563EB" />,
               'Require Face ID',
               prefsLoading ? (
                 <ActivityIndicator size="small" color="#2563EB" />
@@ -237,12 +226,18 @@ export default function SettingsScreen() {
                   onValueChange={handleFaceIDToggle}
                   trackColor={{ false: '#E2E8F0', true: '#93C5FD' }}
                   thumbColor={preferences.requireFaceID ? '#2563EB' : '#F4F4F5'}
-                  disabled={!profile?.is_pro}
                 />
               )
             )}
+          </>
+        )}
+
+        {/* Section 3: Preferences */}
+        {renderSection(
+          'PREFERENCES',
+          <>
             {renderRow(
-              <Bell size={20} color="#2563EB" />,
+              <NativeIcon name="bell" size={20} color="#2563EB" />,
               'Haptics',
               prefsLoading ? (
                 <ActivityIndicator size="small" color="#2563EB" />
@@ -256,7 +251,7 @@ export default function SettingsScreen() {
               )
             )}
             {renderRow(
-              <Volume2 size={20} color="#2563EB" />,
+              <NativeIcon name="settings" size={20} color="#2563EB" />,
               'Sounds',
               prefsLoading ? (
                 <ActivityIndicator size="small" color="#2563EB" />
@@ -272,26 +267,26 @@ export default function SettingsScreen() {
           </>
         )}
 
-        {/* Section 3: Support & Legal */}
+        {/* Section 4: Support */}
         {renderSection(
-          'Support & Legal',
+          'SUPPORT',
           <>
             {renderRow(
-              <FileText size={20} color="#64748B" />,
+              <NativeIcon name="file-text" size={20} color="#64748B" />,
               'Privacy Policy',
               null,
               handlePrivacyPolicy,
               true
             )}
             {renderRow(
-              <FileText size={20} color="#64748B" />,
+              <NativeIcon name="file-text" size={20} color="#64748B" />,
               'Terms of Service',
               null,
               handleTermsOfService,
               true
             )}
             {renderRow(
-              <Mail size={20} color="#64748B" />,
+              <NativeIcon name="mail" size={20} color="#64748B" />,
               'Contact Support',
               null,
               handleContactSupport,
@@ -305,8 +300,8 @@ export default function SettingsScreen() {
           'Danger Zone',
           <>
             {renderRow(
-              <Trash2 size={20} color="#DC2626" />,
-              'Delete Account & Data',
+              <NativeIcon name="trash" size={20} color="#DC2626" />,
+              'Delete Account',
               isDeleting ? (
                 <ActivityIndicator size="small" color="#DC2626" />
               ) : null,

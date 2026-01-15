@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, AppState, AppStateStatus } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { usePreferences } from '@/hooks/usePreferences';
-import { Lock, FaceId, Fingerprint } from 'lucide-react-native';
+import { NativeIcon } from './NativeIcon';
 
 interface BiometricGateProps {
   children: React.ReactNode;
@@ -124,11 +124,11 @@ export function BiometricGate({ children }: BiometricGateProps) {
         <View className="items-center">
           <View className="w-24 h-24 rounded-full bg-white/20 items-center justify-center mb-8">
             {biometricType === 'face' ? (
-              <FaceId size={48} color="#FFFFFF" />
+              <NativeIcon name="faceid" size={48} color="#FFFFFF" />
             ) : biometricType === 'fingerprint' ? (
-              <Fingerprint size={48} color="#FFFFFF" />
+              <NativeIcon name="fingerprint" size={48} color="#FFFFFF" />
             ) : (
-              <Lock size={48} color="#FFFFFF" />
+              <NativeIcon name="lock" size={48} color="#FFFFFF" />
             )}
           </View>
           

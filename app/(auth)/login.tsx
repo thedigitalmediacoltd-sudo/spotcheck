@@ -12,7 +12,7 @@ import {
 import { useRouter } from 'expo-router';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { signInWithApple, signInWithGoogle, signInWithEmail, signUpWithEmail } from '@/services/auth';
-import { Sparkles } from 'lucide-react-native';
+import { NativeIcon } from '@/components/NativeIcon';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -103,7 +103,7 @@ export default function LoginScreen() {
         {/* Hero Section */}
         <View className="items-center mb-12">
           <View className="w-24 h-24 rounded-3xl bg-blue-600 items-center justify-center mb-6 shadow-lg">
-            <Sparkles size={48} color="#FFFFFF" />
+            <NativeIcon name="sparkles" size={48} color="#FFFFFF" />
           </View>
           <Text
             className="text-4xl font-bold text-slate-900 mb-2"

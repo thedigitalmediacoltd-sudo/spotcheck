@@ -17,7 +17,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { ProBadge } from '@/components/ProBadge';
 import { TabBar } from '@/components/TabBar';
 import { Toast } from '@/components/Toast';
-import { Send } from 'lucide-react-native';
+import { NativeIcon } from '@/components/NativeIcon';
 
 interface Message {
   id: string;
@@ -208,7 +208,7 @@ export default function ChatScreen() {
               {isLoading ? (
                 <ActivityIndicator size="small" color="#FFFFFF" />
               ) : (
-                <Send size={20} color="#FFFFFF" />
+                <NativeIcon name="send" size={20} color="#FFFFFF" />
               )}
             </TouchableOpacity>
           </View>

@@ -7,7 +7,7 @@ import { CategoryIcon } from '@/components/CategoryIcon';
 import { useItems } from '@/hooks/useItems';
 import { triggerHaptic } from '@/services/sensory';
 import { Toast } from '@/components/Toast';
-import { X } from 'lucide-react-native';
+import { NativeIcon } from '@/components/NativeIcon';
 
 const CATEGORIES = [
   'Vehicle',
@@ -164,7 +164,7 @@ export default function VerifyScreen() {
             accessibilityLabel="Close"
             accessibilityHint="Closes the verification screen and returns to previous screen"
           >
-            <X size={24} color="#64748B" />
+            <NativeIcon name="close" size={24} color="#64748B" />
           </TouchableOpacity>
         </View>
 

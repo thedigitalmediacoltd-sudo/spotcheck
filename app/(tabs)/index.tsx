@@ -7,7 +7,6 @@ import { Swipeable } from 'react-native-gesture-handler';
 import { FlashList } from '@shopify/flash-list';
 import { useAuth } from '@/context/AuthContext';
 import { CategoryIcon } from '@/components/CategoryIcon';
-import { UrgencyBadge } from '@/components/UrgencyBadge';
 import { TabBar } from '@/components/TabBar';
 import { SkeletonRow } from '@/components/SkeletonRow';
 import { useItems } from '@/hooks/useItems';
@@ -15,7 +14,6 @@ import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useDebounce } from '@/hooks/useDebounce';
 import { triggerHaptic } from '@/services/sensory';
 import { supabase } from '@/lib/supabase';
-import { Bell, User, WifiOff, Settings, Search, Check, Trash2 } from 'lucide-react-native';
 
 const mapCategoryToDisplay = (category: string): string => {
   switch (category) {
@@ -168,31 +166,35 @@ export default function DashboardScreen() {
     let swipeableRef: Swipeable | null = null;
 
     const renderLeftActions = () => (
-      <View className="flex-1 flex-row items-center justify-start bg-green-500 rounded-2xl ml-4 mb-3">
+      <View className="flex-1 items-center justify-center bg-green-500 rounded-2xl ml-4 mb-3">
         <TouchableOpacity
           onPress={() => {
             swipeableRef?.close();
             handleMarkDone(item.id, item.expiry_date);
           }}
-          className="flex-1 items-center justify-center px-6"
+          className="flex-1 items-center justify-center w-full"
+          accessibilityRole="button"
+          accessibilityLabel={`Complete ${item.title}`}
+          accessibilityHint="Marks this item as complete and sets its expiry to next year"
         >
-          <Check size={24} color="#FFFFFF" />
-          <Text className="text-white font-semibold mt-1 text-sm">Complete</Text>
+          <NativeIcon name="check" size={28} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
     );
 
     const renderRightActions = () => (
-      <View className="flex-1 flex-row items-center justify-end bg-rose-500 rounded-2xl mr-4 mb-3">
+      <View className="flex-1 items-center justify-center bg-rose-500 rounded-2xl mr-4 mb-3">
         <TouchableOpacity
           onPress={() => {
             swipeableRef?.close();
             handleDelete(item.id);
           }}
-          className="flex-1 items-center justify-center px-6"
+          className="flex-1 items-center justify-center w-full"
+          accessibilityRole="button"
+          accessibilityLabel={`Delete ${item.title}`}
+          accessibilityHint="Removes this item permanently"
         >
-          <Trash2 size={24} color="#FFFFFF" />
-          <Text className="text-white font-semibold mt-1 text-sm">Delete</Text>
+          <NativeIcon name="trash" size={28} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
     );
@@ -234,9 +236,23 @@ export default function DashboardScreen() {
               Expires {formatDate(item.expiry_date)}
             </Text>
           </View>
-          <View className="ml-2">
-            <UrgencyBadge daysUntilExpiry={daysUntilExpiry} />
-          </View>
+            <View className="ml-2">
+              {daysUntilExpiry !== null && daysUntilExpiry < 0 ? (
+                <NativeIcon 
+                  name="alert" 
+                  size={20} 
+                  color="#DC2626"
+                  accessibilityLabel={`Expired ${Math.abs(daysUntilExpiry)} days ago`}
+                />
+              ) : daysUntilExpiry !== null && daysUntilExpiry < 30 ? (
+                <NativeIcon 
+                  name="warning" 
+                  size={20} 
+                  color="#F59E0B"
+                  accessibilityLabel={`Expires in ${daysUntilExpiry} days`}
+                />
+              ) : null}
+            </View>
         </TouchableOpacity>
       </Swipeable>
     );
@@ -256,7 +272,7 @@ export default function DashboardScreen() {
           accessibilityLabel="No Internet Connection"
           accessibilityLiveRegion="polite"
         >
-          <WifiOff size={18} color="#FFFFFF" />
+          <NativeIcon name="wifi-off" size={18} color="#FFFFFF" />
           <Text className="text-white font-medium ml-2 text-sm">
             No Internet Connection - Some features may be unavailable
           </Text>
@@ -266,37 +282,37 @@ export default function DashboardScreen() {
       {/* Header */}
       <View className="bg-white px-6 py-4 border-b border-slate-100">
           <View className="flex-row items-center justify-between mb-4">
-            <View>
-            <Text 
-              className="text-2xl font-semibold text-slate-900"
-              accessibilityRole="header"
-            >
-              {getGreeting()}
-            </Text>
-          </View>
-          <View className="flex-row items-center">
-            <TouchableOpacity 
-              className="mr-4"
-              accessibilityRole="button"
-              accessibilityLabel="Notifications"
-              accessibilityHint="View your notifications"
-            >
-              <Bell size={24} color="#64748B" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => router.push('/settings')}
-              accessibilityRole="button"
-              accessibilityLabel="Settings"
-              accessibilityHint="Open app settings"
-            >
-              <Settings size={24} color="#64748B" />
-            </TouchableOpacity>
-          </View>
+            <View className="flex-row items-center flex-1">
+              <TouchableOpacity
+                className="mr-3"
+                accessibilityRole="button"
+                accessibilityLabel="Profile"
+                accessibilityHint="View your profile"
+              >
+                <NativeIcon name="person-circle" size={24} color="#64748B" />
+              </TouchableOpacity>
+              <Text 
+                className="text-2xl font-semibold text-slate-900"
+                accessibilityRole="header"
+              >
+                {getGreeting()}
+              </Text>
+            </View>
+            <View className="flex-row items-center">
+              <TouchableOpacity
+                onPress={() => router.push('/settings')}
+                accessibilityRole="button"
+                accessibilityLabel="Settings"
+                accessibilityHint="Open app settings"
+              >
+                <NativeIcon name="settings" size={24} color="#64748B" />
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Search Bar */}
           <View className="bg-slate-100 rounded-xl px-4 py-3 flex-row items-center mb-3">
-            <Search size={20} color="#94A3B8" />
+            <NativeIcon name="search" size={20} color="#94A3B8" />
             <TextInput
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -436,7 +452,7 @@ export default function DashboardScreen() {
             {debouncedSearchQuery.trim() || selectedChip !== 'All' ? (
               <>
                 <View className="mb-4">
-                  <Search size={48} color="#94A3B8" />
+                  <NativeIcon name="search" size={48} color="#94A3B8" />
                 </View>
                 <Text className="text-slate-900 font-semibold text-lg mb-2">No Results</Text>
                 <Text className="text-slate-500 text-sm text-center">
@@ -445,9 +461,9 @@ export default function DashboardScreen() {
               </>
             ) : (
               <>
-                <Text className="text-slate-900 font-semibold text-lg mb-2">No Active Items</Text>
+                <Text className="text-slate-900 font-bold text-lg mb-2">No Items</Text>
                 <Text className="text-slate-500 text-sm text-center">
-                  Tap + to add your first bill
+                  Tap + to scan your first bill.
                 </Text>
               </>
             )}
@@ -465,6 +481,17 @@ export default function DashboardScreen() {
           />
         )}
       <TabBar />
+      
+      {/* Floating Action Button - Add Item */}
+      <TouchableOpacity
+        onPress={() => router.push('/(tabs)/scan')}
+        className="absolute bottom-24 right-6 w-14 h-14 rounded-full bg-blue-600 items-center justify-center shadow-lg"
+        accessibilityRole="button"
+        accessibilityLabel="Add Item"
+        accessibilityHint="Opens the camera to scan a new bill or document"
+      >
+        <NativeIcon name="plus" size={28} color="#FFFFFF" />
+      </TouchableOpacity>
     </View>
     </GestureHandlerRootView>
   );

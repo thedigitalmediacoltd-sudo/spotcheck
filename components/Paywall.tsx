@@ -9,7 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { X, Check, Sparkles } from 'lucide-react-native';
+import { NativeIcon } from './NativeIcon';
 
 interface PaywallProps {
   visible: boolean;
@@ -68,10 +68,10 @@ export function Paywall({ visible, onClose }: PaywallProps) {
             <View className="flex-row items-center justify-between p-6 border-b border-slate-100">
               <View className="flex-row items-center">
                 <View className="w-12 h-12 rounded-2xl bg-amber-100 items-center justify-center mr-3">
-                  <Sparkles size={24} color="#F59E0B" />
+                  <NativeIcon name="sparkles" size={24} color="#F59E0B" />
                 </View>
                 <Text
-                  className="text-2xl font-bold text-slate-900"
+                  className="text-2xl font-bold text-slate-900 tracking-tight"
                   accessibilityRole="header"
                 >
                   Unlock SpotCheck Pro
@@ -82,7 +82,7 @@ export function Paywall({ visible, onClose }: PaywallProps) {
                 accessibilityRole="button"
                 accessibilityLabel="Close"
               >
-                <X size={24} color="#64748B" />
+                <NativeIcon name="close" size={24} color="#64748B" />
               </TouchableOpacity>
             </View>
 
@@ -109,11 +109,11 @@ export function Paywall({ visible, onClose }: PaywallProps) {
                     </View>
                   </View>
 
-                  {/* AI Scanning Row */}
+                  {/* Smart Scan Row */}
                   <View className="flex-row px-4 py-4 border-b border-slate-200">
                     <View className="flex-1">
                       <Text className="text-slate-900 font-semibold text-sm">
-                        AI Scanning
+                        Smart Scan
                       </Text>
                     </View>
                     <View className="w-20 items-center">
@@ -126,33 +126,33 @@ export function Paywall({ visible, onClose }: PaywallProps) {
                     </View>
                   </View>
 
-                  {/* Financial Coach Row */}
+                  {/* Spot Coach Row */}
                   <View className="flex-row px-4 py-4 border-b border-slate-200">
                     <View className="flex-1">
                       <Text className="text-slate-900 font-semibold text-sm">
-                        Financial Coach
+                        Spot Coach
                       </Text>
                     </View>
                     <View className="w-20 items-center">
                       <Text className="text-slate-400 text-lg">❌</Text>
                     </View>
                     <View className="w-20 items-center">
-                      <Check size={20} color="#059669" />
+                      <NativeIcon name="check" size={20} color="#059669" />
                     </View>
                   </View>
 
-                  {/* Biometric Lock Row */}
+                  {/* App Lock Row - Available for all */}
                   <View className="flex-row px-4 py-4">
                     <View className="flex-1">
                       <Text className="text-slate-900 font-semibold text-sm">
-                        Biometric Lock
+                        App Lock
                       </Text>
                     </View>
                     <View className="w-20 items-center">
-                      <Text className="text-slate-400 text-lg">❌</Text>
+                      <NativeIcon name="check" size={20} color="#059669" />
                     </View>
                     <View className="w-20 items-center">
-                      <Check size={20} color="#059669" />
+                      <NativeIcon name="check" size={20} color="#059669" />
                     </View>
                   </View>
                 </View>
@@ -160,7 +160,7 @@ export function Paywall({ visible, onClose }: PaywallProps) {
 
               {/* Price */}
               <View className="items-center mb-6">
-                <Text className="text-slate-500 text-sm mb-1">One-time payment</Text>
+                <Text className="text-slate-500 text-sm mb-1">One-time purchase.</Text>
                 <Text className="text-4xl font-bold text-slate-900">£24.99</Text>
                 <Text className="text-slate-500 text-sm mt-1">Lifetime Access</Text>
               </View>

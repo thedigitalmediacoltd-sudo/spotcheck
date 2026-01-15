@@ -151,15 +151,15 @@ export default function ScanScreen() {
               reduceTransparency ? 'bg-black/90' : ''
             }`}
             accessibilityRole="progressbar"
-            accessibilityLabel="Reading document"
+            accessibilityLabel="Analyzing document"
             accessibilityLiveRegion="polite"
           >
             {reduceTransparency ? (
               <View className="bg-white rounded-3xl p-8 items-center shadow-lg">
                 <ActivityIndicator size="large" color="#2563EB" />
-                <Text className="text-slate-900 font-semibold mt-4 text-lg">
-                  Reading...
-                </Text>
+                  <Text className="text-slate-900 font-semibold mt-4 text-lg">
+                    Analyzing...
+                  </Text>
                 <Text className="text-slate-500 text-sm mt-2 text-center">
                   This may take a few seconds
                 </Text>
@@ -169,7 +169,7 @@ export default function ScanScreen() {
                 <View className="bg-white/95 rounded-3xl p-8 items-center shadow-lg">
                   <ActivityIndicator size="large" color="#2563EB" />
                   <Text className="text-slate-900 font-semibold mt-4 text-lg">
-                    Reading...
+                    Analyzing...
                   </Text>
                   <Text className="text-slate-500 text-sm mt-2 text-center">
                     This may take a few seconds

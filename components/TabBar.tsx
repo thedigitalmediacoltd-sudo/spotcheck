@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
-import { ChartPie, ScanLine, Sparkles } from 'lucide-react-native';
+import { NativeIcon } from './NativeIcon';
 import { triggerHaptic } from '@/services/sensory';
 
 export function TabBar() {
@@ -29,27 +29,21 @@ export function TabBar() {
           accessibilityHint="View your items and savings overview"
           accessibilityState={{ selected: isActive('/(tabs)/') || isActive('/(tabs)/index') }}
         >
-          <ChartPie size={24} color="#FFFFFF" />
-          <Text 
-            className="text-white text-xs mt-1"
-            maxFontSizeMultiplier={1.2}
-          >
-            Overview
-          </Text>
+          <NativeIcon name="home" size={24} color="#FFFFFF" />
         </TouchableOpacity>
 
-        {/* Center Capture Button - Overlaps slightly */}
+        {/* Center Capture Button - Floating, 1.5x larger */}
         <TouchableOpacity
           onPress={() => {
             triggerHaptic('light');
             router.push('/(tabs)/scan');
           }}
-          className="absolute -top-6 bg-blue-600 w-16 h-16 rounded-full items-center justify-center shadow-lg"
+          className="absolute -top-8 bg-blue-600 w-20 h-20 rounded-full items-center justify-center shadow-lg"
           accessibilityRole="button"
-          accessibilityLabel="Scan Document"
+          accessibilityLabel="Capture Document"
           accessibilityHint="Opens the camera to capture a bill or document"
         >
-          <ScanLine size={28} color="#FFFFFF" />
+          <NativeIcon name="camera" size={36} color="#FFFFFF" />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -63,13 +57,7 @@ export function TabBar() {
           accessibilityHint="Chat with Spot, your financial assistant"
           accessibilityState={{ selected: isActive('/(tabs)/chat') }}
         >
-          <Sparkles size={24} color="#FFFFFF" />
-          <Text 
-            className="text-white text-xs mt-1"
-            maxFontSizeMultiplier={1.2}
-          >
-            Spot
-          </Text>
+          <NativeIcon name="sparkles" size={24} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
     </View>
