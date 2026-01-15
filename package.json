@@ -6,7 +6,10 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "bump": "node scripts/bump.js",
+    "build:ios": "npm run bump && eas build --platform ios",
+    "build:android": "npm run bump && eas build --platform android"
   },
   "dependencies": {
     "expo": "~51.0.0",
