@@ -24,6 +24,7 @@ export interface Database {
           vehicle_reg: string | null;
           vehicle_make: string | null;
           is_main_dealer: boolean | null;
+          vehicle_id: string | null;
           created_at: string;
         };
         Insert: {
@@ -40,6 +41,7 @@ export interface Database {
           vehicle_reg?: string | null;
           vehicle_make?: string | null;
           is_main_dealer?: boolean | null;
+          vehicle_id?: string | null;
           created_at?: string;
         };
         Update: {
@@ -56,6 +58,7 @@ export interface Database {
           vehicle_reg?: string | null;
           vehicle_make?: string | null;
           is_main_dealer?: boolean | null;
+          vehicle_id?: string | null;
           created_at?: string;
         };
         Relationships: [];
