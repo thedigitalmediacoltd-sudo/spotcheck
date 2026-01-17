@@ -1,0 +1,18 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:8081",
+  "loginUser": "admin@admin.com",
+  "loginPassword": "Admin123",
+  "executionArgs": {
+    "projectName": "spotcheck-app",
+    "projectPath": "/Users/mhmdali/Projects/spotcheck-app",
+    "testIds": [],
+    "additionalInstruction": "",
+    "envs": {
+      "API_KEY": "sk-user-sVljir7rdwoyYhkltPUoggS2SL0Z25YVULk3e4O_OViKIPzRbK0lOmDzU4zXBGrISqjLX0nA6sbMqFPXYzXnK0EMc8OR_IKKwBDw08g8qtQxlzzuJBMw7GAQXn5rWt8P4dQ"
+    }
+  },
+  "proxy": "http://6f8efeec-04f4-4da8-9aeb-500b4d221b97:kuONp0nTH3b0kQhK1W1WqZh4Zz7eH2GF@tun.testsprite.com:8080"
+}

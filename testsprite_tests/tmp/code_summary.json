@@ -1,0 +1,143 @@
+{
+  "tech_stack": [
+    "TypeScript",
+    "React Native",
+    "Expo SDK 54",
+    "Expo Router",
+    "Supabase",
+    "PostgreSQL",
+    "TanStack Query",
+    "NativeWind (Tailwind CSS)",
+    "Google Gemini 1.5 Flash",
+    "React Native MLKit OCR",
+    "RevenueCat"
+  ],
+  "features": [
+    {
+      "name": "Authentication",
+      "description": "User authentication with email, Apple Sign In, and Google Sign In via Supabase",
+      "files": [
+        "app/(auth)/login.tsx",
+        "app/(auth)/_layout.tsx",
+        "context/AuthContext.tsx",
+        "services/auth.ts",
+        "components/BiometricGate.tsx"
+      ]
+    },
+    {
+      "name": "Document Scanning",
+      "description": "On-device OCR scanning and AI-powered document analysis for bills and contracts",
+      "files": [
+        "app/(tabs)/scan.tsx",
+        "app/verify.tsx",
+        "services/ocr.ts",
+        "services/analysis.ts",
+        "supabase/functions/analyze-doc/index.ts"
+      ]
+    },
+    {
+      "name": "Items Management",
+      "description": "CRUD operations for managing bills, contracts, and subscriptions with filtering and search",
+      "files": [
+        "app/(tabs)/index.tsx",
+        "app/item/[id].tsx",
+        "hooks/useItems.ts",
+        "components/ActionCard.tsx",
+        "components/UrgencyBadge.tsx",
+        "components/CategoryIcon.tsx"
+      ]
+    },
+    {
+      "name": "Chat Coach",
+      "description": "AI financial assistant (Spot) that provides advice based on user's expense list",
+      "files": [
+        "app/(tabs)/chat.tsx",
+        "services/chat.ts",
+        "supabase/functions/chat-coach/index.ts"
+      ]
+    },
+    {
+      "name": "Paywall & Pro Features",
+      "description": "Freemium model with Pro subscription managed via RevenueCat",
+      "files": [
+        "components/Paywall.tsx",
+        "components/ProBadge.tsx",
+        "context/PaywallContext.tsx",
+        "services/paywall.ts"
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "description": "Overview screen showing summary statistics and quick actions",
+      "files": [
+        "app/(tabs)/dashboard.tsx"
+      ]
+    },
+    {
+      "name": "Settings",
+      "description": "User preferences, profile management, and app configuration",
+      "files": [
+        "app/settings/index.tsx",
+        "hooks/usePreferences.ts",
+        "hooks/useProfile.ts"
+      ]
+    },
+    {
+      "name": "Calendar Integration",
+      "description": "Renewal reminders and calendar event creation for item expiry dates",
+      "files": [
+        "services/calendar.ts"
+      ]
+    },
+    {
+      "name": "Network & Offline Support",
+      "description": "Network status monitoring and offline mode handling",
+      "files": [
+        "hooks/useNetworkStatus.ts"
+      ]
+    },
+    {
+      "name": "UI Components",
+      "description": "Reusable UI components including buttons, toasts, icons, and loading states",
+      "files": [
+        "components/NativeIcon.tsx",
+        "components/BouncyButton.tsx",
+        "components/Toast.tsx",
+        "components/SkeletonRow.tsx",
+        "components/TabBar.tsx",
+        "components/ErrorBoundary.tsx"
+      ]
+    },
+    {
+      "name": "Sensory Feedback",
+      "description": "Haptic feedback and audio cues for user interactions",
+      "files": [
+        "services/sensory.ts"
+      ]
+    },
+    {
+      "name": "Data Fetching & Caching",
+      "description": "React Query configuration and data fetching utilities",
+      "files": [
+        "lib/queryClient.ts",
+        "lib/supabase.ts"
+      ]
+    },
+    {
+      "name": "Utilities",
+      "description": "Helper functions and utilities including debounce",
+      "files": [
+        "hooks/useDebounce.ts"
+      ]
+    },
+    {
+      "name": "App Layout & Navigation",
+      "description": "Root layout, tab navigation, and routing configuration",
+      "files": [
+        "app/_layout.tsx",
+        "app/(tabs)/_layout.tsx",
+        "app/index.tsx"
+      ]
+    }
+  ]
+}

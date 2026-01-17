@@ -1,0 +1,393 @@
+[
+  {
+    "id": "TC001",
+    "title": "User Authentication with Email - Success",
+    "description": "Verify that the user can successfully authenticate using email and password with valid credentials.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to login page."
+      },
+      {
+        "type": "action",
+        "description": "Input valid email and password."
+      },
+      {
+        "type": "action",
+        "description": "Click login button."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user is successfully logged in and dashboard is displayed."
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "User Authentication with Email - Invalid Credentials",
+    "description": "Verify that login fails with incorrect email or password and an appropriate error message is shown.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to login page."
+      },
+      {
+        "type": "action",
+        "description": "Input invalid email or incorrect password."
+      },
+      {
+        "type": "action",
+        "description": "Click login button."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify login is unsuccessful and error message is displayed."
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "OCR Document Scanning - Accurate Text Extraction",
+    "description": "Check that OCR scanning extracts text accurately from a clear bill document, meeting defined accuracy thresholds.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open the document scanning feature."
+      },
+      {
+        "type": "action",
+        "description": "Scan a sample clear bill document with text."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify extracted text matches the document content with acceptable accuracy."
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "OCR Document Scanning - Poor Quality Image Handling",
+    "description": "Verify the OCR scanning gracefully handles poor quality or blurry images by showing appropriate feedback or retry options.",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open the document scanning feature."
+      },
+      {
+        "type": "action",
+        "description": "Scan a low quality or blurry document image."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user receives feedback indicating low scan quality and can retry scanning."
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Create New Bill/Contract Item",
+    "description": "Verify users can create a new bill or contract item with all required fields and it is persisted correctly and appears in the item list.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to items management page."
+      },
+      {
+        "type": "action",
+        "description": "Click 'Add New' and fill in required bill or contract details."
+      },
+      {
+        "type": "action",
+        "description": "Submit the creation form."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify new item is persisted and visible with correct details in the list."
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Read/View Existing Item Details",
+    "description": "Verify that the user can view full details of an existing bill, contract, or subscription item correctly.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to items list."
+      },
+      {
+        "type": "action",
+        "description": "Select an existing item."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify full item details are displayed accurately."
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Update Existing Item",
+    "description": "Test that changes to an existing item’s data are saved correctly and immediately reflected in the UI.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Select an existing bill/contract item."
+      },
+      {
+        "type": "action",
+        "description": "Modify editable fields."
+      },
+      {
+        "type": "action",
+        "description": "Save the changes."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify updated item details are persisted and displayed correctly."
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Delete Item and Verify Removal",
+    "description": "Verify that deleting an item removes it from the database and the UI without errors.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Select an existing item."
+      },
+      {
+        "type": "action",
+        "description": "Perform delete action and confirm if prompted."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the item is removed from the list and cannot be accessed anymore."
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Search and Filter Items",
+    "description": "Validate the search and filter functionalities correctly return items matching criteria for bills, contracts, and subscriptions.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to items management page."
+      },
+      {
+        "type": "action",
+        "description": "Enter search keywords and apply different filters (e.g., by category or urgency)."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify displayed items correspond to the search query and filter selections."
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "AI Chat Coach - Relevant Financial Advice",
+    "description": "Verify that the AI Chat Coach provides relevant and contextually accurate financial advice based on user's current expenses and data.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open AI Chat Coach interface."
+      },
+      {
+        "type": "action",
+        "description": "Input questions or prompts related to user's financial data."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the AI response is relevant, accurate, and based on user's expenses."
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Pro Subscription Access Control - Feature Restriction",
+    "description": "Verify that premium features are inaccessible when the user does not have an active Pro subscription.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Use app features that require Pro subscription without subscribing."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access is restricted and paywall or upgrade prompts appear."
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Pro Subscription Purchase Flow",
+    "description": "Validate that the user can successfully subscribe to Pro via the paywall with RevenueCat, and feature access updates accordingly.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to paywall and initiate Pro subscription purchase."
+      },
+      {
+        "type": "action",
+        "description": "Complete the purchase successfully."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user subscription status updates to Pro and premium features unlock."
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Dashboard Displays Accurate Financial Summaries",
+    "description": "Confirm that the dashboard screen correctly aggregates and displays the user’s financial data with no errors or missing information.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login and navigate to dashboard."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all displayed financial summaries and quick actions represent the actual user data accurately."
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "User Profile Update and Persistence",
+    "description": "Verify that changes to user profile and preferences in settings are saved correctly and reflected throughout the app.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to settings."
+      },
+      {
+        "type": "action",
+        "description": "Update user profile fields and preferences."
+      },
+      {
+        "type": "action",
+        "description": "Save the settings."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify updated information is persisted and reflected in relevant app sections."
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Renewal Reminders Sync with Calendar",
+    "description": "Verify that renewal reminders created for expiring items correctly sync with the device’s calendar and trigger notifications on time.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Add a renewal reminder for an expiring subscription or contract."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the reminder appears in device calendar app and triggers notification at expected time."
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Network Status Monitoring - Offline Mode Activation",
+    "description": "Test that the app detects network loss accurately and switches to offline mode seamlessly without disrupting user experience.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Simulate network disconnection while using the app."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the app changes status to offline and continues functioning with cached data where applicable."
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "Network Status Monitoring - Network Recovery",
+    "description": "Verify that when network connectivity is restored, the app detects it and synchronizes data as expected.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Simulate network re-connection after offline mode."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the app detects reconnection, syncs data, and restores full network-enabled functionality."
+      }
+    ]
+  },
+  {
+    "id": "TC018",
+    "title": "UI Components Sensory Feedback - Haptic and Audio Cues",
+    "description": "Verify that all actionable UI components trigger appropriate haptic and audio feedback, enhancing user interaction.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Use various UI components including buttons, toasts, and error boundaries."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the corresponding haptic and audio feedback triggers on each interaction."
+      }
+    ]
+  },
+  {
+    "id": "TC019",
+    "title": "Error Boundary Displays Friendly Message on Failure",
+    "description": "Ensure that any UI error caught by error boundaries displays a user-friendly error message, not a crash, and offers recovery options.",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Simulate an error within a component wrapped by an error boundary."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the error boundary catches the error and displays a helpful message with recovery options."
+      }
+    ]
+  }
+]

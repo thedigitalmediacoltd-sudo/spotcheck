@@ -36,7 +36,11 @@
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE",
         "READ_CALENDAR",
-        "WRITE_CALENDAR"
+        "WRITE_CALENDAR",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
       ]
     },
     "web": {
@@ -51,11 +55,15 @@
           "cameraPermission": "SpotCheck needs camera access to scan your bills and contracts for analysis."
         }
       ],
-      "react-native-mlkit-ocr",
       "expo-local-authentication",
-      "expo-apple-authentication",
-      "expo-symbols"
+      "expo-apple-authentication"
     ],
-    "scheme": "spotcheck"
+    "scheme": "spotcheck",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "d9cd495f-cac9-4274-bdc7-9f0fb2f406e1"
+      }
+    }
   }
 }
