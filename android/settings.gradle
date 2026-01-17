@@ -22,19 +22,12 @@ plugins {
   id("expo-autolinking-settings")
 }
 
-// Configure React Native autolinking
-try {
-  def ReactSettingsExtensionClass = Class.forName('com.facebook.react.ReactSettingsExtension')
-  extensions.configure(ReactSettingsExtensionClass) { ex ->
+extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
   if (System.getenv('EXPO_USE_COMMUNITY_AUTOLINKING') == '1') {
     ex.autolinkLibrariesFromCommand()
   } else {
     ex.autolinkLibrariesFromCommand(expoAutolinking.rnConfigCommand)
   }
-  }
-} catch (ClassNotFoundException e) {
-  // Extension not found, skip configuration
-  println "Warning: ReactSettingsExtension not found, skipping autolink configuration"
 }
 expoAutolinking.useExpoModules()
 
