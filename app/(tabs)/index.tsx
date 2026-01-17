@@ -7,6 +7,7 @@ import { Swipeable } from 'react-native-gesture-handler';
 import { FlashList } from '@shopify/flash-list';
 import { useAuth } from '@/context/AuthContext';
 import { CategoryIcon } from '@/components/CategoryIcon';
+import { NativeIcon } from '@/components/NativeIcon';
 import { TabBar } from '@/components/TabBar';
 import { SkeletonRow } from '@/components/SkeletonRow';
 import { useItems } from '@/hooks/useItems';

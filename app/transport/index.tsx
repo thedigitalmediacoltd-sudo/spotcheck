@@ -1,12 +1,13 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { NativeIcon } from '@/components/NativeIcon';
 import { triggerHaptic } from '@/services/sensory';
+import { ScreenWrapper } from '@/components/ScreenWrapper';
+import { ModernCard } from '@/components/ModernCard';
 
 interface Vehicle {
   id: string;
@@ -59,47 +60,32 @@ export default function TransportScreen() {
 
   if (isLoading) {
     return (
-      <LinearGradient
-        colors={['#F3E8FF', '#FFFFFF']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-        className="flex-1 items-center justify-center"
-      >
-        <ActivityIndicator size="large" color="#9333EA" />
+      <ScreenWrapper className="items-center justify-center">
+        <ActivityIndicator size="large" color="#7F3DFF" />
         <Text className="text-slate-500 mt-4">Loading vehicles...</Text>
-      </LinearGradient>
+      </ScreenWrapper>
     );
   }
 
   if (isError) {
     return (
-      <LinearGradient
-        colors={['#F3E8FF', '#FFFFFF']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-        className="flex-1 items-center justify-center px-6"
-      >
+      <ScreenWrapper className="items-center justify-center px-6">
         <NativeIcon name="alert" size={48} color="#ef4444" />
         <Text className="text-slate-900 font-semibold text-lg mt-4">Something went wrong</Text>
         <Text className="text-slate-500 text-center mt-2">
           Unable to load your vehicles. Please try again.
         </Text>
-      </LinearGradient>
+      </ScreenWrapper>
     );
   }
 
   const isEmpty = !vehicles || vehicles.length === 0;
 
   return (
-    <LinearGradient
-      colors={['#F3E8FF', '#FFFFFF']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-      className="flex-1"
-    >
+    <ScreenWrapper>
       {/* Header */}
       <View className="px-6 pt-12 pb-6">
-        <Text className="text-slate-900 font-bold text-3xl">Garage</Text>
+        <Text className="text-slate-900 font-bold text-3xl">My Garage</Text>
         <Text className="text-slate-500 mt-1">Manage your vehicles</Text>
       </View>
 
@@ -117,7 +103,7 @@ export default function TransportScreen() {
           </Text>
           <TouchableOpacity
             onPress={handleAddVehicle}
-            className="bg-purple-600 px-8 py-4 rounded-full shadow-lg"
+            className="bg-brand-primary px-8 py-4 rounded-full shadow-lg"
             accessibilityLabel="Add your first car"
             accessibilityHint="Navigates to the add vehicle screen"
           >
@@ -128,40 +114,46 @@ export default function TransportScreen() {
         /* Vehicles List */
         <ScrollView className="flex-1 px-6 py-4" showsVerticalScrollIndicator={false}>
           {vehicles.map((vehicle) => (
-            <TouchableOpacity
+            <ModernCard
               key={vehicle.id}
               onPress={() => handleVehiclePress(vehicle.id)}
-              className="bg-white rounded-3xl p-4 mb-3 shadow-md border border-purple-50"
-              accessibilityLabel={`${vehicle.make || 'Vehicle'} ${vehicle.model || ''} ${vehicle.registration_number}`}
-              accessibilityHint="Opens vehicle details"
+              className="mb-4"
+              touchableProps={{
+                accessibilityLabel: `${vehicle.make || 'Vehicle'} ${vehicle.model || ''} ${vehicle.registration_number}`,
+                accessibilityHint: 'Opens vehicle details',
+              }}
             >
               <View className="flex-row items-center">
-                {/* Icon */}
-                <View className="bg-orange-100 rounded-full p-3 mr-4">
-                  <NativeIcon name="car" size={24} color="#ea580c" />
+                {/* Icon Container */}
+                <View className="bg-violet-100 rounded-2xl p-3 mr-4">
+                  <NativeIcon name="car" size={24} color="#7F3DFF" />
                 </View>
 
                 {/* Vehicle Info */}
                 <View className="flex-1">
-                  <Text className="text-slate-900 font-semibold text-base">
+                  <Text className="text-slate-900 font-bold text-base">
                     {vehicle.make && vehicle.model
                       ? `${vehicle.make} ${vehicle.model}`
                       : vehicle.make || vehicle.model || 'Vehicle'}
                   </Text>
-                  <Text className="text-slate-500 text-sm mt-1">
-                    {vehicle.registration_number}
-                  </Text>
-                  {vehicle.year_of_manufacture && (
-                    <Text className="text-slate-400 text-xs mt-1">
-                      {vehicle.year_of_manufacture}
-                    </Text>
-                  )}
+                  <View className="flex-row items-center mt-2">
+                    <View className="bg-gray-100 rounded-lg px-2 py-1">
+                      <Text className="text-gray-600 text-xs font-medium">
+                        {vehicle.registration_number}
+                      </Text>
+                    </View>
+                    {vehicle.year_of_manufacture && (
+                      <Text className="text-slate-400 text-xs ml-2">
+                        {vehicle.year_of_manufacture}
+                      </Text>
+                    )}
+                  </View>
                 </View>
 
                 {/* Arrow */}
                 <NativeIcon name="arrow-right" size={20} color="#94a3b8" />
               </View>
-            </TouchableOpacity>
+            </ModernCard>
           ))}
         </ScrollView>
       )}
@@ -170,13 +162,13 @@ export default function TransportScreen() {
       {!isEmpty && (
         <TouchableOpacity
           onPress={handleAddVehicle}
-          className="absolute bottom-6 right-6 w-14 h-14 bg-purple-600 rounded-full items-center justify-center shadow-lg"
+          className="absolute bottom-6 right-6 w-14 h-14 bg-brand-primary rounded-full items-center justify-center shadow-lg"
           accessibilityLabel="Add vehicle"
           accessibilityHint="Opens the add vehicle screen"
         >
           <NativeIcon name="plus" size={28} color="#ffffff" />
         </TouchableOpacity>
       )}
-    </LinearGradient>
+    </ScreenWrapper>
   );
 }
