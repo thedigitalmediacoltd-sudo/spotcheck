@@ -38,7 +38,7 @@ export function TabBar() {
             triggerHaptic('light');
             router.push('/(tabs)/scan');
           }}
-          className="absolute -top-8 bg-blue-600 w-20 h-20 rounded-full items-center justify-center shadow-lg"
+          className="absolute -top-8 bg-purple-600 w-20 h-20 rounded-full items-center justify-center shadow-lg"
           accessibilityRole="button"
           accessibilityLabel="Capture Document"
           accessibilityHint="Opens the camera to capture a bill or document"

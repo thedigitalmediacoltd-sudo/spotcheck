@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/context/AuthContext';
@@ -58,31 +59,46 @@ export default function TransportScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 bg-slate-50 items-center justify-center">
-        <ActivityIndicator size="large" color="#3b82f6" />
+      <LinearGradient
+        colors={['#F3E8FF', '#FFFFFF']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        className="flex-1 items-center justify-center"
+      >
+        <ActivityIndicator size="large" color="#9333EA" />
         <Text className="text-slate-500 mt-4">Loading vehicles...</Text>
-      </View>
+      </LinearGradient>
     );
   }
 
   if (isError) {
     return (
-      <View className="flex-1 bg-slate-50 items-center justify-center px-6">
+      <LinearGradient
+        colors={['#F3E8FF', '#FFFFFF']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        className="flex-1 items-center justify-center px-6"
+      >
         <NativeIcon name="alert" size={48} color="#ef4444" />
         <Text className="text-slate-900 font-semibold text-lg mt-4">Something went wrong</Text>
         <Text className="text-slate-500 text-center mt-2">
           Unable to load your vehicles. Please try again.
         </Text>
-      </View>
+      </LinearGradient>
     );
   }
 
   const isEmpty = !vehicles || vehicles.length === 0;
 
   return (
-    <View className="flex-1 bg-slate-50">
+    <LinearGradient
+      colors={['#F3E8FF', '#FFFFFF']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      className="flex-1"
+    >
       {/* Header */}
-      <View className="bg-white px-6 pt-16 pb-6 border-b border-slate-200">
+      <View className="px-6 pt-12 pb-6">
         <Text className="text-slate-900 font-bold text-3xl">Garage</Text>
         <Text className="text-slate-500 mt-1">Manage your vehicles</Text>
       </View>
@@ -101,7 +117,7 @@ export default function TransportScreen() {
           </Text>
           <TouchableOpacity
             onPress={handleAddVehicle}
-            className="bg-blue-600 px-8 py-4 rounded-full shadow-lg"
+            className="bg-purple-600 px-8 py-4 rounded-full shadow-lg"
             accessibilityLabel="Add your first car"
             accessibilityHint="Navigates to the add vehicle screen"
           >
@@ -115,7 +131,7 @@ export default function TransportScreen() {
             <TouchableOpacity
               key={vehicle.id}
               onPress={() => handleVehiclePress(vehicle.id)}
-              className="bg-white rounded-2xl p-4 mb-3 shadow-sm"
+              className="bg-white rounded-3xl p-4 mb-3 shadow-md border border-purple-50"
               accessibilityLabel={`${vehicle.make || 'Vehicle'} ${vehicle.model || ''} ${vehicle.registration_number}`}
               accessibilityHint="Opens vehicle details"
             >
@@ -154,13 +170,13 @@ export default function TransportScreen() {
       {!isEmpty && (
         <TouchableOpacity
           onPress={handleAddVehicle}
-          className="absolute bottom-6 right-6 w-14 h-14 bg-blue-600 rounded-full items-center justify-center shadow-lg"
+          className="absolute bottom-6 right-6 w-14 h-14 bg-purple-600 rounded-full items-center justify-center shadow-lg"
           accessibilityLabel="Add vehicle"
           accessibilityHint="Opens the add vehicle screen"
         >
           <NativeIcon name="plus" size={28} color="#ffffff" />
         </TouchableOpacity>
       )}
-    </View>
+    </LinearGradient>
   );
 }

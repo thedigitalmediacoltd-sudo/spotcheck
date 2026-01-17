@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
 import { AnalysisResult } from '@/services/analysis';
@@ -148,10 +149,15 @@ export default function VerifyScreen() {
   };
 
   return (
-    <View className="flex-1 bg-slate-50">
-      <View className="bg-white rounded-t-3xl flex-1 mt-20 shadow-lg">
+    <LinearGradient
+      colors={['#F3E8FF', '#FFFFFF']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      className="flex-1"
+    >
+      <View className="bg-white rounded-t-3xl flex-1 mt-20 shadow-lg border border-purple-50">
         {/* Header */}
-        <View className="flex-row items-center justify-between p-6 border-b border-slate-100">
+        <View className="flex-row items-center justify-between p-6 border-b border-purple-100">
           <Text 
             className="text-2xl font-semibold text-slate-900"
             accessibilityRole="header"
@@ -196,12 +202,12 @@ export default function VerifyScreen() {
                   accessibilityState={{ selected: category === cat }}
                 >
                   <View className={`mb-2 ${
-                    category === cat ? 'border-2 border-blue-600 rounded-full' : ''
+                    category === cat ? 'border-2 border-purple-600 rounded-full' : ''
                   }`}>
                     <CategoryIcon category={cat} size={24} />
                   </View>
                   <Text className={`text-xs font-medium ${
-                    category === cat ? 'text-blue-600' : 'text-slate-500'
+                    category === cat ? 'text-purple-600' : 'text-slate-500'
                   }`}>
                     {cat}
                   </Text>
@@ -222,8 +228,9 @@ export default function VerifyScreen() {
               value={title}
               onChangeText={setTitle}
               placeholder="Document title"
-              className="bg-white border border-slate-200 rounded-2xl px-4 py-4 text-slate-900 shadow-sm"
+              className="bg-white border border-purple-100 rounded-2xl px-4 py-4 text-slate-900 shadow-sm"
               placeholderTextColor="#94A3B8"
+              style={{ caretColor: '#9333EA' }}
               accessibilityLabel="Document title"
               accessibilityHint="Enter the title for this document"
             />
@@ -243,8 +250,9 @@ export default function VerifyScreen() {
                 onChangeText={setVehicleReg}
                 placeholder="AB12 CDE"
                 autoCapitalize="characters"
-                className="bg-white border border-slate-200 rounded-2xl px-4 py-4 text-slate-900 shadow-sm"
+                className="bg-white border border-purple-100 rounded-2xl px-4 py-4 text-slate-900 shadow-sm"
                 placeholderTextColor="#94A3B8"
+                style={{ caretColor: '#9333EA' }}
                 accessibilityLabel="Vehicle registration plate"
                 accessibilityHint="Enter the vehicle registration number"
               />
@@ -258,8 +266,9 @@ export default function VerifyScreen() {
               value={expiryDate}
               onChangeText={setExpiryDate}
               placeholder="DD/MM/YYYY"
-              className="bg-white border border-slate-200 rounded-2xl px-4 py-4 text-slate-900 shadow-sm"
+              className="bg-white border border-purple-100 rounded-2xl px-4 py-4 text-slate-900 shadow-sm"
               placeholderTextColor="#94A3B8"
+              style={{ caretColor: '#9333EA' }}
             />
           </View>
 
@@ -271,8 +280,9 @@ export default function VerifyScreen() {
               onChangeText={setCost}
               placeholder="45.99"
               keyboardType="decimal-pad"
-              className="bg-white border border-slate-200 rounded-2xl px-4 py-4 text-slate-900 shadow-sm"
+              className="bg-white border border-purple-100 rounded-2xl px-4 py-4 text-slate-900 shadow-sm"
               placeholderTextColor="#94A3B8"
+              style={{ caretColor: '#9333EA' }}
             />
           </View>
 
@@ -280,7 +290,7 @@ export default function VerifyScreen() {
           <TouchableOpacity
             onPress={handleSave}
             disabled={isAdding}
-            className={`bg-blue-600 py-4 rounded-2xl shadow-md ${isAdding ? 'opacity-50' : ''}`}
+            className={`bg-purple-600 py-4 rounded-3xl shadow-md ${isAdding ? 'opacity-50' : ''}`}
             accessibilityRole="button"
             accessibilityLabel={isAdding ? 'Saving item' : 'Save Item'}
             accessibilityHint="Saves the item to your list"
@@ -298,6 +308,6 @@ export default function VerifyScreen() {
         visible={toastVisible}
         onHide={() => setToastVisible(false)}
       />
-    </View>
+    </LinearGradient>
   );
 }

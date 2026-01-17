@@ -212,7 +212,7 @@ export default function DashboardScreen() {
       >
         <TouchableOpacity
           onPress={() => router.push(`/item/${item.id}`)}
-          className="bg-white rounded-2xl p-4 mb-3 mx-4 shadow-sm flex-row items-center flex-wrap"
+          className="bg-white rounded-3xl p-4 mb-3 mx-4 shadow-md border border-purple-50 flex-row items-center flex-wrap"
           accessibilityRole="button"
           accessibilityLabel={`${item.title}, ${categoryText}, ${expiryText}`}
           accessibilityHint={`Opens details for ${item.title}`}
@@ -264,7 +264,12 @@ export default function DashboardScreen() {
 
   return (
     <GestureHandlerRootView className="flex-1">
-    <View className="flex-1 bg-slate-50">
+    <LinearGradient
+      colors={['#F3E8FF', '#FFFFFF']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      className="flex-1"
+    >
       {/* Offline Banner */}
       {isOffline && (
         <View 
@@ -281,7 +286,7 @@ export default function DashboardScreen() {
       )}
       
       {/* Header */}
-      <View className="bg-white px-6 py-4 border-b border-slate-100">
+      <View className="px-6 pt-12 pb-4">
           <View className="flex-row items-center justify-between mb-4">
             <View className="flex-row items-center flex-1">
               <TouchableOpacity
@@ -312,7 +317,7 @@ export default function DashboardScreen() {
           </View>
 
           {/* Search Bar */}
-          <View className="bg-slate-100 rounded-xl px-4 py-3 flex-row items-center mb-3">
+          <View className="bg-white border border-purple-100 rounded-2xl px-4 py-3 flex-row items-center mb-3 shadow-sm">
             <NativeIcon name="search" size={20} color="#94A3B8" />
             <TextInput
               value={searchQuery}
@@ -320,7 +325,7 @@ export default function DashboardScreen() {
               placeholder="Search Items"
               placeholderTextColor="#94A3B8"
               className="flex-1 ml-3 text-slate-900"
-              style={{ caretColor: '#2563EB' }}
+              style={{ caretColor: '#9333EA' }}
               accessibilityLabel="Search Items"
               accessibilityHint="Type to search for items by name"
             />
@@ -338,7 +343,7 @@ export default function DashboardScreen() {
                 key={chip}
                 onPress={() => setSelectedChip(chip)}
                 className={`px-4 py-2 rounded-full mr-2 ${
-                  selectedChip === chip ? 'bg-blue-600' : 'bg-slate-200'
+                  selectedChip === chip ? 'bg-purple-600' : 'bg-white border border-purple-100'
                 }`}
                 accessibilityRole="button"
                 accessibilityLabel={`Filter by ${chip}`}
@@ -359,27 +364,17 @@ export default function DashboardScreen() {
         {/* Hero Section */}
         <View className="px-6 py-6">
           {totalSavings > 0 ? (
-            <LinearGradient
-              colors={['#F8FAFC', '#FFFFFF']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 1 }}
-              className="rounded-3xl p-6 shadow-md"
-            >
+            <View className="bg-white rounded-3xl p-6 shadow-md border border-purple-50">
               <Text className="text-slate-500 text-sm mb-2">Total Potential Savings</Text>
-              <Text className="text-4xl font-semibold text-blue-600 mb-1">
+              <Text className="text-4xl font-semibold text-purple-600 mb-1">
                 £{totalSavings.toFixed(0)}
               </Text>
               <Text className="text-slate-500 text-sm">
                 Switch to independent services
               </Text>
-            </LinearGradient>
+            </View>
           ) : nextExpiry ? (
-            <LinearGradient
-              colors={['#F8FAFC', '#FFFFFF']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 1 }}
-              className="rounded-3xl p-6 shadow-md"
-            >
+            <View className="bg-white rounded-3xl p-6 shadow-md border border-purple-50">
               <Text className="text-slate-500 text-sm mb-2">Next Expiry</Text>
               <Text className="text-2xl font-semibold text-slate-900 mb-1">
                 {nextExpiry.title}
@@ -387,29 +382,24 @@ export default function DashboardScreen() {
               <Text className="text-slate-500 text-sm">
                 {formatDate(nextExpiry.expiry_date)}
               </Text>
-            </LinearGradient>
+            </View>
           ) : (
-            <LinearGradient
-              colors={['#F8FAFC', '#FFFFFF']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 1 }}
-              className="rounded-3xl p-6 shadow-md"
-            >
+            <View className="bg-white rounded-3xl p-6 shadow-md border border-purple-50">
               <Text className="text-slate-500 text-sm mb-2">All Set</Text>
               <Text className="text-2xl font-semibold text-slate-900">
                 No urgent items
               </Text>
-            </LinearGradient>
+            </View>
           )}
         </View>
 
         {/* Toggle */}
         <View className="px-6 mb-4">
-          <View className="bg-slate-100 rounded-full p-1 flex-row">
+          <View className="bg-white border border-purple-100 rounded-full p-1 flex-row shadow-sm">
             <TouchableOpacity
               onPress={() => setFilter('active')}
               className={`flex-1 py-2 rounded-full ${
-                filter === 'active' ? 'bg-white shadow-sm' : ''
+                filter === 'active' ? 'bg-purple-600 shadow-sm' : ''
               }`}
               accessibilityRole="button"
               accessibilityLabel="Active items"
@@ -417,7 +407,7 @@ export default function DashboardScreen() {
               accessibilityState={{ selected: filter === 'active' }}
             >
               <Text className={`text-center font-semibold ${
-                filter === 'active' ? 'text-blue-600' : 'text-slate-500'
+                filter === 'active' ? 'text-white' : 'text-slate-500'
               }`}>
                 Active
               </Text>
@@ -425,7 +415,7 @@ export default function DashboardScreen() {
             <TouchableOpacity
               onPress={() => setFilter('urgent')}
               className={`flex-1 py-2 rounded-full ${
-                filter === 'urgent' ? 'bg-white shadow-sm' : ''
+                filter === 'urgent' ? 'bg-rose-500 shadow-sm' : ''
               }`}
               accessibilityRole="button"
               accessibilityLabel="Urgent items"
@@ -433,7 +423,7 @@ export default function DashboardScreen() {
               accessibilityState={{ selected: filter === 'urgent' }}
             >
               <Text className={`text-center font-semibold ${
-                filter === 'urgent' ? 'text-rose-500' : 'text-slate-500'
+                filter === 'urgent' ? 'text-white' : 'text-slate-500'
               }`}>
                 Urgent
               </Text>
@@ -486,14 +476,14 @@ export default function DashboardScreen() {
       {/* Floating Action Button - Add Item */}
       <TouchableOpacity
         onPress={() => router.push('/(tabs)/scan')}
-        className="absolute bottom-24 right-6 w-14 h-14 rounded-full bg-blue-600 items-center justify-center shadow-lg"
+        className="absolute bottom-24 right-6 w-14 h-14 rounded-full bg-purple-600 items-center justify-center shadow-lg"
         accessibilityRole="button"
         accessibilityLabel="Add Item"
         accessibilityHint="Opens the camera to scan a new bill or document"
       >
         <NativeIcon name="plus" size={28} color="#FFFFFF" />
       </TouchableOpacity>
-    </View>
+    </LinearGradient>
     </GestureHandlerRootView>
   );
 }

@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/context/AuthContext';
@@ -197,25 +198,35 @@ export default function VehicleDetailScreen() {
 
   if (vehicleLoading) {
     return (
-      <View className="flex-1 bg-slate-50 items-center justify-center">
-        <ActivityIndicator size="large" color="#3b82f6" />
+      <LinearGradient
+        colors={['#F3E8FF', '#FFFFFF']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        className="flex-1 items-center justify-center"
+      >
+        <ActivityIndicator size="large" color="#9333EA" />
         <Text className="text-slate-500 mt-4">Loading vehicle...</Text>
-      </View>
+      </LinearGradient>
     );
   }
 
   if (vehicleError || !vehicle) {
     return (
-      <View className="flex-1 bg-slate-50 items-center justify-center px-6">
+      <LinearGradient
+        colors={['#F3E8FF', '#FFFFFF']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        className="flex-1 items-center justify-center px-6"
+      >
         <NativeIcon name="alert" size={48} color="#ef4444" />
         <Text className="text-slate-900 font-semibold text-lg mt-4">Vehicle not found</Text>
         <TouchableOpacity
           onPress={() => router.back()}
-          className="mt-6 bg-blue-600 px-6 py-3 rounded-xl"
+          className="mt-6 bg-purple-600 px-6 py-3 rounded-3xl"
         >
           <Text className="text-white font-semibold">Go Back</Text>
         </TouchableOpacity>
-      </View>
+      </LinearGradient>
     );
   }
 
@@ -226,9 +237,15 @@ export default function VehicleDetailScreen() {
   const isTaxUrgent = taxDays !== null && taxDays < 30;
 
   return (
-    <ScrollView className="flex-1 bg-slate-50" showsVerticalScrollIndicator={false}>
+    <LinearGradient
+      colors={['#F3E8FF', '#FFFFFF']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      className="flex-1"
+    >
+    <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
       {/* Header */}
-      <View className="bg-white px-6 pt-16 pb-6 border-b border-slate-200">
+      <View className="px-6 pt-12 pb-6">
         <TouchableOpacity
           onPress={() => router.back()}
           className="mb-4"
@@ -265,8 +282,8 @@ export default function VehicleDetailScreen() {
       <View className="px-6 py-6">
         {/* MOT Status */}
         <View
-          className={`bg-white rounded-2xl p-4 shadow-sm border mb-4 ${
-            isMotUrgent ? 'border-rose-200 bg-rose-50' : 'border-slate-200'
+          className={`bg-white rounded-3xl p-4 shadow-md border mb-4 ${
+            isMotUrgent ? 'border-rose-200 bg-rose-50' : 'border-purple-50'
           }`}
         >
           <View className="flex-row items-center justify-between mb-2">
@@ -300,8 +317,8 @@ export default function VehicleDetailScreen() {
 
         {/* Tax Status */}
         <View
-          className={`bg-white rounded-2xl p-4 shadow-sm border mb-4 ${
-            isTaxUrgent ? 'border-rose-200 bg-rose-50' : 'border-slate-200'
+          className={`bg-white rounded-3xl p-4 shadow-md border mb-4 ${
+            isTaxUrgent ? 'border-rose-200 bg-rose-50' : 'border-purple-50'
           }`}
         >
           <View className="flex-row items-center justify-between mb-2">
@@ -334,21 +351,21 @@ export default function VehicleDetailScreen() {
         </View>
 
         {/* Linked Documents Section */}
-        <View className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 mb-4">
+        <View className="bg-white rounded-3xl p-4 shadow-md border border-purple-50 mb-4">
           <View className="flex-row items-center justify-between mb-4">
             <Text className="text-slate-900 font-semibold text-lg">Linked Documents</Text>
             <TouchableOpacity
               onPress={handleAddDocument}
-              className="bg-blue-100 px-3 py-1.5 rounded-full flex-row items-center"
+              className="bg-purple-100 px-3 py-1.5 rounded-full flex-row items-center"
               accessibilityLabel="Add document"
             >
-              <NativeIcon name="plus" size={16} color="#3b82f6" />
-              <Text className="text-blue-600 font-medium text-sm ml-1">Add</Text>
+              <NativeIcon name="plus" size={16} color="#9333EA" />
+              <Text className="text-purple-600 font-medium text-sm ml-1">Add</Text>
             </TouchableOpacity>
           </View>
 
           {documentsLoading ? (
-            <ActivityIndicator size="small" color="#3b82f6" />
+            <ActivityIndicator size="small" color="#9333EA" />
           ) : !documents || documents.length === 0 ? (
             <Text className="text-slate-500 text-sm">No documents linked</Text>
           ) : (
@@ -377,21 +394,21 @@ export default function VehicleDetailScreen() {
         </View>
 
         {/* Linked Subscriptions Section */}
-        <View className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 mb-4">
+        <View className="bg-white rounded-3xl p-4 shadow-md border border-purple-50 mb-4">
           <View className="flex-row items-center justify-between mb-4">
             <Text className="text-slate-900 font-semibold text-lg">Linked Subscriptions</Text>
             <TouchableOpacity
               onPress={handleAddSubscription}
-              className="bg-blue-100 px-3 py-1.5 rounded-full flex-row items-center"
+              className="bg-purple-100 px-3 py-1.5 rounded-full flex-row items-center"
               accessibilityLabel="Add subscription"
             >
-              <NativeIcon name="plus" size={16} color="#3b82f6" />
-              <Text className="text-blue-600 font-medium text-sm ml-1">Add</Text>
+              <NativeIcon name="plus" size={16} color="#9333EA" />
+              <Text className="text-purple-600 font-medium text-sm ml-1">Add</Text>
             </TouchableOpacity>
           </View>
 
           {subscriptionsLoading ? (
-            <ActivityIndicator size="small" color="#3b82f6" />
+            <ActivityIndicator size="small" color="#9333EA" />
           ) : !subscriptions || subscriptions.length === 0 ? (
             <Text className="text-slate-500 text-sm">No subscriptions linked</Text>
           ) : (
@@ -428,7 +445,7 @@ export default function VehicleDetailScreen() {
         <TouchableOpacity
           onPress={handleDeleteVehicle}
           disabled={deleteVehicleMutation.isPending}
-          className="bg-rose-600 rounded-xl py-4 px-6 mt-4 flex-row items-center justify-center"
+          className="bg-rose-600 rounded-3xl py-4 px-6 mt-4 flex-row items-center justify-center shadow-md"
           accessibilityLabel="Delete vehicle"
           accessibilityHint="Removes this vehicle and unlinks all associated documents"
         >
@@ -446,5 +463,6 @@ export default function VehicleDetailScreen() {
         </TouchableOpacity>
       </View>
     </ScrollView>
+    </LinearGradient>
   );
 }

@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Platform,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { signInWithApple, signInWithGoogle, signInWithEmail, signUpWithEmail } from '@/services/auth';
@@ -94,27 +95,43 @@ export default function LoginScreen() {
   };
 
   return (
-    <ScrollView
-      className="flex-1 bg-white"
-      contentContainerStyle={{ flexGrow: 1 }}
-      keyboardShouldPersistTaps="handled"
+    <LinearGradient
+      colors={['#F3E8FF', '#FFFFFF']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      className="flex-1"
     >
-      <View className="flex-1 justify-center px-6 py-12">
-        {/* Hero Section */}
-        <View className="items-center mb-12">
-          <View className="w-24 h-24 rounded-3xl bg-blue-600 items-center justify-center mb-6 shadow-lg">
-            <NativeIcon name="sparkles" size={48} color="#FFFFFF" />
-          </View>
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Header */}
+        <View className="px-6 pt-12 pb-4">
           <Text
-            className="text-4xl font-bold text-slate-900 mb-2"
+            className="text-2xl font-semibold text-slate-900"
             accessibilityRole="header"
           >
-            SpotCheck
-          </Text>
-          <Text className="text-slate-500 text-base text-center">
-            Your privacy-first admin automation
+            Welcome
           </Text>
         </View>
+
+        <View className="flex-1 justify-center px-6 py-8">
+          {/* Hero Section */}
+          <View className="items-center mb-10">
+            <View className="w-24 h-24 rounded-3xl bg-purple-600 items-center justify-center mb-6 shadow-lg">
+              <NativeIcon name="sparkles" size={48} color="#FFFFFF" />
+            </View>
+            <Text
+              className="text-4xl font-bold text-slate-900 mb-2"
+              accessibilityRole="header"
+            >
+              SpotCheck
+            </Text>
+            <Text className="text-slate-500 text-base text-center">
+              Your privacy-first admin automation
+            </Text>
+          </View>
 
         {/* Social Buttons */}
         <View className="mb-6">
@@ -124,7 +141,7 @@ export default function LoginScreen() {
               <AppleAuthentication.AppleAuthenticationButton
                 buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
                 buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-                cornerRadius={12}
+                cornerRadius={24}
                 style={{ width: '100%', height: 50 }}
                 onPress={handleAppleSignIn}
               />
@@ -135,7 +152,7 @@ export default function LoginScreen() {
           <TouchableOpacity
             onPress={handleGoogleSignIn}
             disabled={loading}
-            className="bg-white border border-slate-200 rounded-xl py-4 px-6 flex-row items-center justify-center shadow-sm mb-4"
+            className="bg-white border border-purple-100 rounded-3xl py-4 px-6 flex-row items-center justify-center shadow-md mb-4"
             accessibilityRole="button"
             accessibilityLabel="Continue with Google"
             accessibilityHint="Signs in using your Google account"
@@ -149,13 +166,13 @@ export default function LoginScreen() {
 
         {/* Divider */}
         <View className="flex-row items-center mb-6">
-          <View className="flex-1 h-px bg-slate-200" />
+          <View className="flex-1 h-px bg-purple-100" />
           <Text className="mx-4 text-slate-500 text-sm">or continue with email</Text>
-          <View className="flex-1 h-px bg-slate-200" />
+          <View className="flex-1 h-px bg-purple-100" />
         </View>
 
         {/* Email Form */}
-        <View className="mb-6">
+        <View className="mb-6 bg-white rounded-3xl p-6 shadow-md">
           <TextInput
             value={email}
             onChangeText={setEmail}
@@ -164,8 +181,8 @@ export default function LoginScreen() {
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
-            className="bg-slate-100 rounded-xl px-4 py-4 text-slate-900 mb-4"
-            style={{ caretColor: '#2563EB' }}
+            className="bg-purple-50 border border-purple-100 rounded-2xl px-4 py-4 text-slate-900 mb-4"
+            style={{ caretColor: '#9333EA' }}
             accessibilityLabel="Email"
             accessibilityHint="Enter your email address"
             editable={!loading}
@@ -179,8 +196,8 @@ export default function LoginScreen() {
             secureTextEntry
             autoCapitalize="none"
             autoComplete={isSignUp ? 'password-new' : 'password'}
-            className="bg-slate-100 rounded-xl px-4 py-4 text-slate-900 mb-4"
-            style={{ caretColor: '#2563EB' }}
+            className="bg-purple-50 border border-purple-100 rounded-2xl px-4 py-4 text-slate-900 mb-4"
+            style={{ caretColor: '#9333EA' }}
             accessibilityLabel="Password"
             accessibilityHint="Enter your password"
             editable={!loading}
@@ -189,7 +206,7 @@ export default function LoginScreen() {
           <TouchableOpacity
             onPress={handleEmailAuth}
             disabled={loading}
-            className={`bg-blue-600 rounded-xl py-4 items-center shadow-md ${
+            className={`bg-purple-600 rounded-2xl py-4 items-center shadow-md ${
               loading ? 'opacity-50' : ''
             }`}
             accessibilityRole="button"
@@ -216,12 +233,13 @@ export default function LoginScreen() {
         >
           <Text className="text-slate-500 text-sm">
             {isSignUp ? 'Already have an account? ' : 'New here? '}
-            <Text className="text-blue-600 font-semibold">
+            <Text className="text-purple-600 font-semibold">
               {isSignUp ? 'Sign In' : 'Create Account'}
             </Text>
           </Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </LinearGradient>
   );
 }

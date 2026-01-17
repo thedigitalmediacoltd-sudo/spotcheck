@@ -9,6 +9,7 @@ import {
   Linking,
   ActivityIndicator,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -128,7 +129,7 @@ export default function SettingsScreen() {
       >
         {title}
       </Text>
-      <View className="bg-white rounded-2xl mx-4 overflow-hidden shadow-sm">
+      <View className="bg-white rounded-3xl mx-4 overflow-hidden shadow-md border border-purple-50">
         {children}
       </View>
     </View>
@@ -160,9 +161,14 @@ export default function SettingsScreen() {
   );
 
   return (
-    <View className="flex-1 bg-slate-50">
+    <LinearGradient
+      colors={['#F3E8FF', '#FFFFFF']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      className="flex-1"
+    >
       {/* Header */}
-      <View className="bg-white px-6 py-4 flex-row items-center justify-between border-b border-slate-100">
+      <View className="px-6 pt-12 pb-4 flex-row items-center justify-between">
         <Text
           className="text-2xl font-semibold text-slate-900"
           accessibilityRole="header"
@@ -312,6 +318,6 @@ export default function SettingsScreen() {
           'mb-20'
         )}
       </ScrollView>
-    </View>
+    </LinearGradient>
   );
 }

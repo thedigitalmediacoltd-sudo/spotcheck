@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -139,13 +140,19 @@ export default function AddVehicleScreen() {
   };
 
   return (
+    <LinearGradient
+      colors={['#F3E8FF', '#FFFFFF']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      className="flex-1"
+    >
     <KeyboardAvoidingView
-      className="flex-1 bg-slate-50"
+      className="flex-1"
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View className="bg-white px-6 pt-16 pb-6 border-b border-slate-200">
+        <View className="px-6 pt-12 pb-6">
           <TouchableOpacity
             onPress={() => router.back()}
             className="mb-4"
@@ -207,7 +214,7 @@ export default function AddVehicleScreen() {
           <TouchableOpacity
             onPress={handleFindVehicle}
             disabled={isSearching || !registrationNumber.trim()}
-            className={`bg-blue-600 rounded-xl py-4 px-6 mb-6 ${
+            className={`bg-purple-600 rounded-3xl py-4 px-6 mb-6 shadow-md ${
               isSearching || !registrationNumber.trim() ? 'opacity-50' : ''
             }`}
             accessibilityLabel="Find vehicle"
@@ -225,7 +232,7 @@ export default function AddVehicleScreen() {
 
           {/* Vehicle Details Card */}
           {vehicleData && (
-            <View className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+            <View className="bg-white rounded-3xl p-6 shadow-md border border-purple-50">
               <View className="flex-row items-center mb-4">
                 <View className="bg-orange-100 rounded-full p-3 mr-3">
                   <NativeIcon name="car" size={24} color="#ea580c" />
@@ -313,5 +320,6 @@ export default function AddVehicleScreen() {
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }

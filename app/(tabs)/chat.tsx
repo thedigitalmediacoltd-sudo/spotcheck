@@ -9,6 +9,7 @@ import {
   Platform,
   ActivityIndicator 
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/context/AuthContext';
 import { sendMessage } from '@/services/chat';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
@@ -112,10 +113,10 @@ export default function ChatScreen() {
   };
 
   const renderMessage = ({ item }: { item: Message }) => {
-    if (item.isUser) {
+      if (item.isUser) {
       return (
         <View className="flex-row justify-end mb-4 px-4">
-          <View className="bg-blue-600 rounded-2xl rounded-tr-sm px-4 py-3 max-w-[80%]">
+          <View className="bg-purple-600 rounded-3xl rounded-tr-sm px-4 py-3 max-w-[80%]">
             <Text className="text-white text-sm">{item.text}</Text>
           </View>
         </View>
@@ -132,14 +133,20 @@ export default function ChatScreen() {
   };
 
   return (
+    <LinearGradient
+      colors={['#F3E8FF', '#FFFFFF']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      className="flex-1"
+    >
     <KeyboardAvoidingView 
-      className="flex-1 bg-slate-50"
+      className="flex-1"
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
       <View className="flex-1">
         {/* Header */}
-        <View className="bg-white border-b border-slate-100 px-6 py-4">
+        <View className="px-6 pt-12 pb-4">
           <View className="flex-row items-center">
             <Text 
               className="text-2xl font-semibold text-slate-900"
@@ -180,24 +187,25 @@ export default function ChatScreen() {
         />
 
         {/* Input Area */}
-        <View className="bg-white border-t border-slate-100 px-4 py-3">
+        <View className="bg-white border-t border-purple-100 px-4 py-3">
           <View className="flex-row items-center">
             <TextInput
               value={inputText}
               onChangeText={setInputText}
               placeholder="Ask Spot..."
               placeholderTextColor="#94A3B8"
-              className="flex-1 bg-slate-100 rounded-2xl px-4 py-3 text-slate-900 mr-3"
+              className="flex-1 bg-purple-50 border border-purple-100 rounded-2xl px-4 py-3 text-slate-900 mr-3"
               multiline
               maxLength={500}
               editable={!isLoading}
+              style={{ caretColor: '#9333EA' }}
               accessibilityLabel="Message input"
               accessibilityHint="Type your question for Spot"
             />
             <TouchableOpacity
               onPress={handleSend}
               disabled={!inputText.trim() || isLoading || isOffline}
-              className={`w-12 h-12 rounded-full bg-blue-600 items-center justify-center ${
+              className={`w-12 h-12 rounded-full bg-purple-600 items-center justify-center ${
                 !inputText.trim() || isLoading || isOffline ? 'opacity-50' : ''
               }`}
               accessibilityRole="button"
@@ -222,5 +230,6 @@ export default function ChatScreen() {
       />
       <TabBar />
     </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }

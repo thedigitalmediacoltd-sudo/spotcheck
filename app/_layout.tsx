@@ -54,10 +54,10 @@ function RootLayoutNav() {
     return (
       <View className="flex-1 items-center justify-center bg-white">
         <View className="items-center">
-          <View className="w-20 h-20 rounded-3xl bg-blue-600 items-center justify-center mb-4">
+          <View className="w-20 h-20 rounded-3xl bg-purple-600 items-center justify-center mb-4">
             <Text className="text-white text-2xl font-bold">SC</Text>
           </View>
-          <ActivityIndicator size="large" color="#2563EB" className="mt-4" />
+          <ActivityIndicator size="large" color="#9333EA" className="mt-4" />
         </View>
       </View>
     );
@@ -68,7 +68,7 @@ function RootLayoutNav() {
     return (
       <BiometricGate>
         {showPrivacyCurtain ? (
-          <View className="absolute inset-0 bg-blue-600 items-center justify-center z-50">
+          <View className="absolute inset-0 bg-purple-600 items-center justify-center z-50">
             <View className="items-center">
               <View className="w-20 h-20 rounded-2xl bg-white/20 items-center justify-center mb-4">
                 <Text className="text-white text-2xl font-bold">SC</Text>
@@ -112,6 +112,26 @@ export default function RootLayout() {
   useEffect(() => {
     // Initialize audio mode on app start
     initializeAudio();
+
+    // Suppress non-critical keep-awake errors (expo-keep-awake compatibility issue with RN 0.81.5)
+    // This is a known issue that doesn't affect app functionality
+    const errorHandler = ErrorUtils.getGlobalHandler();
+    ErrorUtils.setGlobalHandler((error: Error, isFatal?: boolean) => {
+      // Filter out non-critical keep-awake errors
+      if (error?.message?.includes('Unable to activate keep awake')) {
+        // Silently ignore - this is non-critical
+        return;
+      }
+      // Call original error handler for other errors
+      if (errorHandler) {
+        errorHandler(error, isFatal);
+      }
+    });
+
+    return () => {
+      // Restore original error handler on unmount
+      ErrorUtils.setGlobalHandler(errorHandler);
+    };
   }, []);
 
   return (

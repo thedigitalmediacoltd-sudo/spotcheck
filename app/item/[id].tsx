@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, TextInput } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
@@ -196,24 +197,34 @@ Yours sincerely,
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-slate-50">
-        <ActivityIndicator size="large" color="#2563EB" />
+      <LinearGradient
+        colors={['#F3E8FF', '#FFFFFF']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        className="flex-1 items-center justify-center"
+      >
+        <ActivityIndicator size="large" color="#9333EA" />
         <Text className="text-slate-500 mt-4">Loading...</Text>
-      </View>
+      </LinearGradient>
     );
   }
 
   if (!item) {
     return (
-      <View className="flex-1 items-center justify-center bg-slate-50">
+      <LinearGradient
+        colors={['#F3E8FF', '#FFFFFF']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        className="flex-1 items-center justify-center"
+      >
         <Text className="text-slate-500">Item not found</Text>
         <TouchableOpacity
           onPress={() => router.back()}
-          className="mt-4 bg-blue-600 px-6 py-3 rounded-2xl"
+          className="mt-4 bg-purple-600 px-6 py-3 rounded-3xl"
         >
           <Text className="text-white font-semibold">Go Back</Text>
         </TouchableOpacity>
-      </View>
+      </LinearGradient>
     );
   }
 
@@ -224,9 +235,15 @@ Yours sincerely,
   const savings = calculateSavings();
 
   return (
-    <ScrollView className="flex-1 bg-slate-50">
+    <LinearGradient
+      colors={['#F3E8FF', '#FFFFFF']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      className="flex-1"
+    >
+    <ScrollView className="flex-1">
       {/* Header */}
-      <View className="bg-white border-b border-slate-100 px-6 py-6">
+      <View className="px-6 pt-12 pb-6">
         <TouchableOpacity
           onPress={() => router.back()}
           className="flex-row items-center mb-4"
@@ -267,7 +284,7 @@ Yours sincerely,
           <View className="mb-6">
             <ActionCard
               potentialSavings={savings}
-              message="Savings Opportunity. You could save £" + savings.toFixed(0)
+              message={`Savings Opportunity. You could save £${savings.toFixed(0)}`}
               onResolve={handleResolve}
             />
           </View>
@@ -276,13 +293,13 @@ Yours sincerely,
         {/* Legal Script Section */}
         {showLegalScript && (
           <View className="mb-6">
-            <View className="bg-white rounded-2xl p-4 shadow-sm mb-4">
+            <View className="bg-white rounded-3xl p-4 shadow-md mb-4 border border-purple-50">
               <Text className="text-slate-500 text-sm mb-2">Draft Letter</Text>
               <TextInput
                 value={generateScript()}
                 multiline
                 editable={false}
-                className="bg-slate-50 rounded-xl p-4 text-slate-700 text-sm min-h-48"
+                className="bg-purple-50 border border-purple-100 rounded-2xl p-4 text-slate-700 text-sm min-h-48"
               />
             </View>
             <TouchableOpacity
@@ -292,7 +309,7 @@ Yours sincerely,
                 setToastVisible(true);
                 Alert.alert('Copied', 'Letter copied to clipboard');
               }}
-              className="bg-blue-600 py-3 rounded-2xl flex-row items-center justify-center"
+              className="bg-purple-600 py-3 rounded-3xl flex-row items-center justify-center shadow-md"
               accessibilityRole="button"
               accessibilityLabel="Copy Draft Letter"
               accessibilityHint="Copies the generated letter to your clipboard"
@@ -308,7 +325,7 @@ Yours sincerely,
           <View className="mb-4 px-4">
             <TouchableOpacity
               onPress={handleAddToCalendar}
-              className="bg-blue-600 py-3 rounded-2xl flex-row items-center justify-center"
+              className="bg-purple-600 py-3 rounded-3xl flex-row items-center justify-center shadow-md"
               accessibilityRole="button"
               accessibilityLabel="Set Reminder"
               accessibilityHint="Sets a renewal reminder in your calendar"
@@ -320,7 +337,7 @@ Yours sincerely,
         )}
 
         {/* Details Card */}
-        <View className="bg-white rounded-2xl p-5 shadow-sm">
+        <View className="bg-white rounded-3xl p-5 shadow-md border border-purple-50">
           <Text 
             className="text-xl font-semibold text-slate-900 mb-4"
             accessibilityRole="header"
@@ -380,5 +397,6 @@ Yours sincerely,
         onHide={() => setToastVisible(false)}
       />
     </ScrollView>
+    </LinearGradient>
   );
 }
