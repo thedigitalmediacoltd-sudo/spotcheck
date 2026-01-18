@@ -47,7 +47,7 @@ export function calculateDaysUntilExpiry(expiryDate: string | null): number | nu
 export function getCategoryLabel(category: string): string {
   switch (category) {
     case 'gov':
-      return 'HOME';
+      return 'VEHICLE'; // 'gov' represents vehicle-related government documents (V11, tax, etc.)
     case 'insurance':
       return 'INSURANCE';
     case 'sub':

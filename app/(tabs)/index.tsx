@@ -105,9 +105,9 @@ export default function DashboardScreen() {
     }
   }, [refetch]);
 
-  const handleDelete = async (itemId: string) => {
+  const handleDelete = useCallback(async (itemId: string) => {
     deleteItem(itemId);
-  };
+  }, [deleteItem]);
 
   const handleItemPress = useCallback((itemId: string) => {
     router.push(`/item/${itemId}`);
