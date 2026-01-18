@@ -60,64 +60,34 @@ target 'SpotCheck' do
       :ccache_enabled => ccache_enabled?(podfile_properties),
     )
     
-    # Fix: Remove ARM64 exclusion for simulator builds (allows ARM64 simulators on Apple Silicon)
-    # Remove from all Pod targets
+    # Permanent fix for MLImage framework: Exclude arm64 for simulator builds
+    # MLImage framework is device-only (arm64 iOS) and does not support simulator
+    # This is a documented limitation of Google MLKit
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
-        config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = ""
+        # Exclude arm64 architecture for simulator builds only (MLImage is device-only)
+        excluded_archs = config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"]
+        excluded_archs = excluded_archs ? excluded_archs.split(' ') : []
+        excluded_archs << 'arm64' unless excluded_archs.include?('arm64')
+        config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = excluded_archs.join(' ')
         
-        # Fix: Exclude MLImage framework for simulator builds (device-only framework)
-        # Remove MLImage from OTHER_LDFLAGS for simulator builds
-        other_ldflags = config.build_settings["OTHER_LDFLAGS"] || []
-        if other_ldflags.is_a?(String)
-          other_ldflags = other_ldflags.split(/\s+/)
-        end
-        
-        simulator_ldflags = other_ldflags.reject { |flag| flag.to_s.include?("MLImage") }
-        if simulator_ldflags != other_ldflags
-          config.build_settings["OTHER_LDFLAGS[sdk=iphonesimulator*]"] = simulator_ldflags
-        end
+        # Only build active architecture for faster simulator builds
+        config.build_settings["ONLY_ACTIVE_ARCH"] = "YES"
       end
     end
     
-    # Also remove from the main app target via Pods xcconfig
-    installer.pods_project.build_configurations.each do |config|
-      config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = ""
-    end
-    
-    # Override in the main project's app target as well
+    # Apply same settings to main app target
     installer.aggregate_targets.each do |aggregate_target|
       aggregate_target.user_project.targets.each do |target|
         target.build_configurations.each do |config|
-          # Remove ARM64 exclusion if present
+          # Exclude arm64 for simulator builds
           excluded_archs = config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"]
-          if excluded_archs == "arm64"
-            config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = ""
-          end
+          excluded_archs = excluded_archs ? excluded_archs.split(' ') : []
+          excluded_archs << 'arm64' unless excluded_archs.include?('arm64')
+          config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = excluded_archs.join(' ')
           
-          # Fix: Exclude MLImage framework paths for simulator builds
-          # MLImage framework is device-only, causing linker errors on simulator
-          framework_search_paths = config.build_settings["FRAMEWORK_SEARCH_PATHS"]
-          if framework_search_paths
-            # Handle both array and string formats
-            paths_array = framework_search_paths.is_a?(Array) ? framework_search_paths : framework_search_paths.split(/\s+/)
-            # Create a copy for simulator builds that excludes MLImage
-            simulator_paths = paths_array.reject { |path| path.to_s.include?("MLImage/Frameworks") }
-            if simulator_paths != paths_array && simulator_paths.any?
-              config.build_settings["FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*]"] = simulator_paths
-            end
-          end
-          
-          # Also exclude MLImage from linker flags for simulator
-          other_ldflags = config.build_settings["OTHER_LDFLAGS"] || []
-          if other_ldflags.is_a?(String)
-            other_ldflags = other_ldflags.split(/\s+/)
-          end
-          
-          simulator_ldflags = other_ldflags.reject { |flag| flag.to_s.include?("MLImage") }
-          if simulator_ldflags != other_ldflags
-            config.build_settings["OTHER_LDFLAGS[sdk=iphonesimulator*]"] = simulator_ldflags
-          end
+          # Only build active architecture for faster simulator builds
+          config.build_settings["ONLY_ACTIVE_ARCH"] = "YES"
         end
       end
     end
