@@ -52,12 +52,12 @@ function RootLayoutNav() {
   // Show loading splash while checking session
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <View className="items-center">
-          <View className="w-20 h-20 rounded-3xl bg-purple-600 items-center justify-center mb-4">
-            <Text className="text-white text-2xl font-bold">SC</Text>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF' }}>
+        <View style={{ alignItems: 'center' }}>
+          <View style={{ width: 80, height: 80, borderRadius: 24, backgroundColor: '#2563EB', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+            <Text style={{ color: '#FFFFFF', fontSize: 24, fontWeight: 'bold' }}>SC</Text>
           </View>
-          <ActivityIndicator size="large" color="#9333EA" className="mt-4" />
+          <ActivityIndicator size="large" color="#2563EB" style={{ marginTop: 16 }} />
         </View>
       </View>
     );
@@ -68,12 +68,12 @@ function RootLayoutNav() {
     return (
       <BiometricGate>
         {showPrivacyCurtain ? (
-          <View className="absolute inset-0 bg-purple-600 items-center justify-center z-50">
-            <View className="items-center">
-              <View className="w-20 h-20 rounded-2xl bg-white/20 items-center justify-center mb-4">
-                <Text className="text-white text-2xl font-bold">SC</Text>
+          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#2563EB', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
+            <View style={{ alignItems: 'center' }}>
+              <View style={{ width: 80, height: 80, borderRadius: 16, backgroundColor: 'rgba(255, 255, 255, 0.2)', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+                <Text style={{ color: '#FFFFFF', fontSize: 24, fontWeight: 'bold' }}>SC</Text>
               </View>
-              <Text className="text-white text-lg font-semibold">SpotCheck</Text>
+              <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '600' }}>SpotCheck</Text>
             </View>
           </View>
         ) : null}

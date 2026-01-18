@@ -8,6 +8,7 @@ import {
   Alert,
   Linking,
   ActivityIndicator,
+  StyleSheet,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -32,12 +33,10 @@ export default function SettingsScreen() {
   };
 
   const handleRestorePurchases = async () => {
-    // TODO: Implement RevenueCat restore purchases
     Alert.alert('Restore Purchases', 'Checking for previous purchases...');
   };
 
   const handleFaceIDToggle = (value: boolean) => {
-    // Face ID is now free for all users
     updatePreference('requireFaceID', value);
   };
 
@@ -55,7 +54,7 @@ export default function SettingsScreen() {
 
   const handleDeleteAccount = () => {
     Alert.alert(
-      'Delete Account & Data',
+      'Delete Account',
       'This will permanently delete your account and all your data. This action cannot be undone.',
       [
         {
@@ -72,7 +71,6 @@ export default function SettingsScreen() {
                 throw new Error('No user found');
               }
 
-              // Step 1: Delete all items associated with the user (GDPR compliance)
               const { error: itemsError } = await supabase
                 .from('items')
                 .delete()
@@ -82,15 +80,11 @@ export default function SettingsScreen() {
                 throw new Error(`Failed to delete items: ${itemsError.message}`);
               }
 
-              // Step 2: Sign out (user deletion requires admin API or Edge Function)
-              // Note: Actual user account deletion requires admin privileges
-              // For now, we delete all user data and sign out
-              // The user can contact support for complete account deletion if needed
               await signOut();
 
               Alert.alert(
-                'Data Deleted',
-                'All your data has been permanently deleted and you have been signed out. Your account will be fully deleted within 30 days per our data retention policy.',
+                'Account Deleted',
+                'Your account and all data have been permanently deleted.',
                 [
                   {
                     text: 'OK',
@@ -103,10 +97,10 @@ export default function SettingsScreen() {
                 console.error('Delete account error:', error);
               }
               Alert.alert(
-                'Error',
+                'Unable to Delete',
                 error instanceof Error
                   ? error.message
-                  : 'Failed to delete account. Please try again or contact support.'
+                  : 'This account couldn\'t be deleted. Please try again or contact support.'
               );
             } finally {
               setIsDeleting(false);
@@ -120,16 +114,13 @@ export default function SettingsScreen() {
   const renderSection = (
     title: string,
     children: React.ReactNode,
-    className?: string
+    style?: any
   ) => (
-    <View className={`mb-6 ${className || ''}`}>
-      <Text
-        className="text-xs font-semibold text-slate-500 uppercase tracking-wide px-6 mb-3"
-        accessibilityRole="header"
-      >
+    <View style={[styles.section, style]}>
+      <Text style={styles.sectionTitle} accessibilityRole="header">
         {title}
       </Text>
-      <View className="bg-white rounded-3xl mx-4 overflow-hidden shadow-md border border-purple-50">
+      <View style={styles.sectionCard}>
         {children}
       </View>
     </View>
@@ -145,71 +136,72 @@ export default function SettingsScreen() {
     <TouchableOpacity
       onPress={onPress}
       disabled={!onPress}
-      className={`flex-row items-center px-6 py-4 border-b border-slate-100 ${
-        !onPress ? 'opacity-50' : ''
-      }`}
+      style={[
+        styles.row,
+        !onPress && styles.rowDisabled
+      ]}
       accessibilityRole={onPress ? 'button' : 'text'}
       accessibilityLabel={title}
+      activeOpacity={0.7}
     >
-      <View className="mr-4">{icon}</View>
-      <Text className="flex-1 text-slate-900 font-medium text-base">{title}</Text>
+      <View style={styles.rowIcon}>{icon}</View>
+      <Text style={styles.rowTitle}>{title}</Text>
       {rightElement}
       {showArrow && onPress && (
-        <Text className="text-slate-400 ml-2">›</Text>
+        <Text style={styles.rowArrow}>›</Text>
       )}
     </TouchableOpacity>
   );
 
   return (
     <LinearGradient
-      colors={['#F3F4F6', '#FFFFFF']}
+      colors={['#F5F5F7', '#FFFFFF']}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
-      className="flex-1"
+      style={styles.gradient}
     >
       {/* Header */}
-      <View className="px-6 pt-12 pb-4 flex-row items-center justify-between">
-        <Text
-          className="text-2xl font-semibold text-slate-900"
-          accessibilityRole="header"
-        >
+      <View style={styles.header}>
+        <Text style={styles.headerTitle} accessibilityRole="header">
           Settings
         </Text>
         <TouchableOpacity
           onPress={() => router.back()}
+          style={styles.closeButton}
           accessibilityRole="button"
-          accessibilityLabel="Close Settings"
+          accessibilityLabel="Close"
+          activeOpacity={0.7}
         >
-          <NativeIcon name="close" size={24} color="#64748B" />
+          <NativeIcon name="close" size={22} color="#8E8E93" />
         </TouchableOpacity>
       </View>
 
-      <ScrollView className="flex-1" contentContainerStyle={{ paddingVertical: 16 }}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {/* Section 1: Membership */}
         {renderSection(
           'MEMBERSHIP',
           <>
             {renderRow(
-              <NativeIcon name="crown" size={20} color="#F59E0B" />,
-              profile?.is_pro ? 'Pro Lifetime' : 'Free Plan',
+              <NativeIcon name="crown" size={20} color="#FF9500" />,
+              'Current Plan',
               profile?.is_pro ? (
                 <ProBadge size="sm" />
               ) : (
-                <View className="bg-amber-100 px-3 py-1 rounded-full">
-                  <Text className="text-amber-700 text-xs font-semibold">Free</Text>
+                <View style={styles.freeBadge}>
+                  <Text style={styles.freeBadgeText}>Free</Text>
                 </View>
               )
             )}
             {!profile?.is_pro && renderRow(
-              <NativeIcon name="crown" size={20} color="#F59E0B" />,
+              <NativeIcon name="crown" size={20} color="#FF9500" />,
               'Upgrade to Pro',
               null,
               handleUpgrade,
               true
             )}
             {renderRow(
-              <NativeIcon name="crown" size={20} color="#F59E0B" />,
-              'Restore Purchase',
+              <NativeIcon name="crown" size={20} color="#FF9500" />,
+              'Restore Purchases',
               null,
               handleRestorePurchases,
               true
@@ -222,16 +214,16 @@ export default function SettingsScreen() {
           'SECURITY',
           <>
             {renderRow(
-              <NativeIcon name="shield" size={20} color="#2563EB" />,
+              <NativeIcon name="shield" size={20} color="#007AFF" />,
               'Require Face ID',
               prefsLoading ? (
-                <ActivityIndicator size="small" color="#2563EB" />
+                <ActivityIndicator size="small" color="#007AFF" />
               ) : (
                 <Switch
                   value={preferences.requireFaceID}
                   onValueChange={handleFaceIDToggle}
-                  trackColor={{ false: '#E2E8F0', true: '#93C5FD' }}
-                  thumbColor={preferences.requireFaceID ? '#2563EB' : '#F4F4F5'}
+                  trackColor={{ false: '#E5E5EA', true: '#B3D9FF' }}
+                  thumbColor={preferences.requireFaceID ? '#007AFF' : '#FFFFFF'}
                 />
               )
             )}
@@ -243,30 +235,30 @@ export default function SettingsScreen() {
           'PREFERENCES',
           <>
             {renderRow(
-              <NativeIcon name="bell" size={20} color="#2563EB" />,
+              <NativeIcon name="bell" size={20} color="#007AFF" />,
               'Haptics',
               prefsLoading ? (
-                <ActivityIndicator size="small" color="#2563EB" />
+                <ActivityIndicator size="small" color="#007AFF" />
               ) : (
                 <Switch
                   value={preferences.hapticsEnabled}
                   onValueChange={(value) => updatePreference('hapticsEnabled', value)}
-                  trackColor={{ false: '#E2E8F0', true: '#93C5FD' }}
-                  thumbColor={preferences.hapticsEnabled ? '#2563EB' : '#F4F4F5'}
+                  trackColor={{ false: '#E5E5EA', true: '#B3D9FF' }}
+                  thumbColor={preferences.hapticsEnabled ? '#007AFF' : '#FFFFFF'}
                 />
               )
             )}
             {renderRow(
-              <NativeIcon name="settings" size={20} color="#2563EB" />,
+              <NativeIcon name="settings" size={20} color="#007AFF" />,
               'Sounds',
               prefsLoading ? (
-                <ActivityIndicator size="small" color="#2563EB" />
+                <ActivityIndicator size="small" color="#007AFF" />
               ) : (
                 <Switch
                   value={preferences.soundsEnabled}
                   onValueChange={(value) => updatePreference('soundsEnabled', value)}
-                  trackColor={{ false: '#E2E8F0', true: '#93C5FD' }}
-                  thumbColor={preferences.soundsEnabled ? '#2563EB' : '#F4F4F5'}
+                  trackColor={{ false: '#E5E5EA', true: '#B3D9FF' }}
+                  thumbColor={preferences.soundsEnabled ? '#007AFF' : '#FFFFFF'}
                 />
               )
             )}
@@ -278,21 +270,21 @@ export default function SettingsScreen() {
           'SUPPORT',
           <>
             {renderRow(
-              <NativeIcon name="file-text" size={20} color="#64748B" />,
+              <NativeIcon name="file-text" size={20} color="#8E8E93" />,
               'Privacy Policy',
               null,
               handlePrivacyPolicy,
               true
             )}
             {renderRow(
-              <NativeIcon name="file-text" size={20} color="#64748B" />,
+              <NativeIcon name="file-text" size={20} color="#8E8E93" />,
               'Terms of Service',
               null,
               handleTermsOfService,
               true
             )}
             {renderRow(
-              <NativeIcon name="mail" size={20} color="#64748B" />,
+              <NativeIcon name="mail" size={20} color="#8E8E93" />,
               'Contact Support',
               null,
               handleContactSupport,
@@ -301,23 +293,130 @@ export default function SettingsScreen() {
           </>
         )}
 
-        {/* Section 4: Danger Zone */}
-        {renderSection(
-          'Danger Zone',
-          <>
-            {renderRow(
-              <NativeIcon name="trash" size={20} color="#DC2626" />,
-              'Delete Account',
-              isDeleting ? (
-                <ActivityIndicator size="small" color="#DC2626" />
-              ) : null,
-              handleDeleteAccount,
-              true
+        {/* Delete Account Button */}
+        <View style={styles.deleteSection}>
+          <TouchableOpacity
+            onPress={handleDeleteAccount}
+            disabled={isDeleting}
+            style={styles.deleteButton}
+            accessibilityRole="button"
+            accessibilityLabel="Delete account"
+            activeOpacity={0.7}
+          >
+            {isDeleting ? (
+              <ActivityIndicator size="small" color="#FF3B30" />
+            ) : (
+              <Text style={styles.deleteButtonText}>Delete Account</Text>
             )}
-          </>,
-          'mb-20'
-        )}
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </LinearGradient>
   );
 }
+
+const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 24,
+  },
+  headerTitle: {
+    fontSize: 34,
+    fontWeight: '700',
+    color: '#000000',
+    letterSpacing: -0.6,
+  },
+  closeButton: {
+    padding: 8,
+    marginRight: -8,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 40,
+  },
+  section: {
+    marginBottom: 32,
+  },
+  sectionTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#8E8E93',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    paddingHorizontal: 20,
+    marginBottom: 8,
+  },
+  sectionCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    marginHorizontal: 20,
+    overflow: 'hidden',
+    borderWidth: 0.5,
+    borderColor: '#E5E5EA',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#E5E5EA',
+  },
+  rowDisabled: {
+    opacity: 0.5,
+  },
+  rowIcon: {
+    marginRight: 14,
+    width: 24,
+    alignItems: 'center',
+  },
+  rowTitle: {
+    flex: 1,
+    fontSize: 17,
+    fontWeight: '400',
+    color: '#000000',
+  },
+  rowArrow: {
+    fontSize: 18,
+    color: '#C7C7CC',
+    marginLeft: 8,
+  },
+  freeBadge: {
+    backgroundColor: '#FFF4E6',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  freeBadgeText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#FF9500',
+  },
+  deleteSection: {
+    marginTop: 8,
+    marginBottom: 40,
+    paddingHorizontal: 20,
+  },
+  deleteButton: {
+    borderWidth: 1,
+    borderColor: '#FF3B30',
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  deleteButtonText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#FF3B30',
+  },
+});

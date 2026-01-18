@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, AccessibilityInfo, TextInput } from 'react-native';
+import React, { useState, useMemo, useCallback } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -15,43 +15,14 @@ import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useDebounce } from '@/hooks/useDebounce';
 import { triggerHaptic } from '@/services/sensory';
 import { supabase } from '@/lib/supabase';
-
-const mapCategoryToDisplay = (category: string): string => {
-  switch (category) {
-    case 'insurance':
-      return 'Insurance';
-    case 'gov':
-      return 'Vehicle';
-    case 'sub':
-      return 'Subscription';
-    case 'warranty':
-      return 'Warranty';
-    case 'contract':
-      return 'Contract';
-    default:
-      return category;
-  }
-};
-
-const calculateDaysUntilExpiry = (expiryDate: string | null): number | null => {
-  if (!expiryDate) return null;
-  
-  const expiry = new Date(expiryDate);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  expiry.setHours(0, 0, 0, 0);
-  
-  const diffTime = expiry.getTime() - today.getTime();
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
-  return diffDays;
-};
+import { formatShortDate } from '@/lib/utils/dates';
+import { mapCategoryToDisplay, calculateDaysUntilExpiry } from '@/lib/utils/items';
 
 const getGreeting = () => {
   const hour = new Date().getHours();
-  if (hour < 12) return 'Good Morning';
-  if (hour < 18) return 'Good Afternoon';
-  return 'Good Evening';
+  if (hour < 12) return 'Good morning';
+  if (hour < 18) return 'Good afternoon';
+  return 'Good evening';
 };
 
 type FilterChip = 'All' | 'Urgent' | 'Vehicle' | 'Home' | 'Digital';
@@ -59,7 +30,6 @@ type FilterChip = 'All' | 'Urgent' | 'Vehicle' | 'Home' | 'Digital';
 export default function DashboardScreen() {
   const { user } = useAuth();
   const router = useRouter();
-  const [filter, setFilter] = useState<'active' | 'urgent'>('active');
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [selectedChip, setSelectedChip] = useState<FilterChip>('All');
@@ -68,53 +38,30 @@ export default function DashboardScreen() {
 
   const formatDate = (dateString: string | null): string => {
     if (!dateString) return 'No date';
-    
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'short',
-      });
-    } catch {
-      return dateString;
-    }
+    return formatShortDate(dateString);
   };
 
-  // Memoize expensive calculations to prevent recalculation on every render
+  // Calculate next urgent expiry (prioritize this over savings)
   const nextExpiry = useMemo(() => {
-    const urgentItems = items.filter(item => {
-      const days = calculateDaysUntilExpiry(item.expiry_date);
-      return days !== null && days <= 30;
+    const allItems = [...items].filter(item => item.expiry_date);
+    allItems.sort((a, b) => {
+      if (!a.expiry_date) return 1;
+      if (!b.expiry_date) return -1;
+      return new Date(a.expiry_date).getTime() - new Date(b.expiry_date).getTime();
     });
-    return urgentItems.length > 0 ? urgentItems[0] : null;
-  }, [items]);
-
-  const totalSavings = useMemo((): number => {
-    return items
-      .filter(item => item.is_main_dealer === true)
-      .reduce((sum, item) => {
-        return sum + (item.cost_monthly || 0) * 0.3;
-      }, 0);
+    return allItems.length > 0 ? allItems[0] : null;
   }, [items]);
 
   // Filter items based on search query and selected chip
-  // Memoize heavy filter logic to prevent recalculation on every render
   const filteredItems = useMemo(() => {
-    let filtered = filter === 'urgent' 
-      ? items.filter(item => {
-          const days = calculateDaysUntilExpiry(item.expiry_date);
-          return days !== null && days <= 30;
-        })
-      : items;
+    let filtered = items;
 
-    // Apply search filter (using debounced value for performance)
     if (debouncedSearchQuery.trim()) {
       filtered = filtered.filter(item =>
         item.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
       );
     }
 
-    // Apply chip filter
     if (selectedChip !== 'All') {
       filtered = filtered.filter(item => {
         const category = mapCategoryToDisplay(item.category);
@@ -125,7 +72,7 @@ export default function DashboardScreen() {
           case 'Vehicle':
             return category === 'Vehicle';
           case 'Home':
-            return category === 'Home/Utilities';
+            return category === 'Home/Utilities' || category === 'Insurance';
           case 'Digital':
             return category === 'Subscription';
           default:
@@ -135,21 +82,20 @@ export default function DashboardScreen() {
     }
 
     return filtered;
-  }, [items, filter, debouncedSearchQuery, selectedChip]);
+  }, [items, debouncedSearchQuery, selectedChip]);
 
   const handleMarkDone = async (itemId: string, currentExpiry: string | null) => {
     if (!currentExpiry) return;
 
     try {
       const expiryDate = new Date(currentExpiry);
-      expiryDate.setFullYear(expiryDate.getFullYear() + 1); // Add 1 year
+      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
 
       await supabase
         .from('items')
         .update({ expiry_date: expiryDate.toISOString().split('T')[0] })
         .eq('id', itemId);
 
-      // Refetch to update UI
       refetch();
     } catch (error) {
       if (__DEV__) {
@@ -162,45 +108,54 @@ export default function DashboardScreen() {
     deleteItem(itemId);
   };
 
-  const renderItem = ({ item }: { item: typeof items[0] }) => {
+  const handleItemPress = useCallback((itemId: string) => {
+    router.push(`/item/${itemId}`);
+  }, [router]);
+
+  const handleMarkDoneCallback = useCallback(async (itemId: string, currentExpiry: string | null) => {
+    await handleMarkDone(itemId, currentExpiry);
+  }, []);
+
+  const renderItem = useCallback(({ item }: { item: typeof items[0] }) => {
     const daysUntilExpiry = calculateDaysUntilExpiry(item.expiry_date);
-    const expiryText = item.expiry_date ? `Expires ${formatDate(item.expiry_date)}` : 'No expiry date';
-    const categoryText = mapCategoryToDisplay(item.category);
     let swipeableRef: Swipeable | null = null;
 
     const renderLeftActions = () => (
-      <View className="flex-1 items-center justify-center bg-green-500 rounded-2xl ml-4 mb-3">
+      <View style={styles.swipeActionLeft}>
         <TouchableOpacity
           onPress={() => {
             swipeableRef?.close();
-            handleMarkDone(item.id, item.expiry_date);
+            handleMarkDoneCallback(item.id, item.expiry_date);
           }}
-          className="flex-1 items-center justify-center w-full"
+          style={styles.swipeButton}
           accessibilityRole="button"
-          accessibilityLabel={`Complete ${item.title}`}
-          accessibilityHint="Marks this item as complete and sets its expiry to next year"
+          accessibilityLabel={`Renew ${item.title}`}
         >
-          <NativeIcon name="check" size={28} color="#FFFFFF" />
+          <NativeIcon name="check" size={24} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
     );
 
     const renderRightActions = () => (
-      <View className="flex-1 items-center justify-center bg-rose-500 rounded-2xl mr-4 mb-3">
+      <View style={styles.swipeActionRight}>
         <TouchableOpacity
           onPress={() => {
             swipeableRef?.close();
             handleDelete(item.id);
           }}
-          className="flex-1 items-center justify-center w-full"
+          style={styles.swipeButton}
           accessibilityRole="button"
           accessibilityLabel={`Delete ${item.title}`}
-          accessibilityHint="Removes this item permanently"
         >
-          <NativeIcon name="trash" size={28} color="#FFFFFF" />
+          <NativeIcon name="trash" size={24} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
     );
+
+    const category = mapCategoryToDisplay(item.category);
+    const displayDate = formatDate(item.expiry_date);
+    const displayCost = item.cost_monthly ? `£${item.cost_monthly.toFixed(2)}/mo` : '';
+    const isUrgent = daysUntilExpiry !== null && daysUntilExpiry <= 7;
 
     return (
       <Swipeable
@@ -212,123 +167,137 @@ export default function DashboardScreen() {
         overshootRight={false}
       >
         <TouchableOpacity
-          onPress={() => router.push(`/item/${item.id}`)}
-          className="bg-white rounded-2xl p-4 mb-3 mx-4 shadow-md border border-purple-50 flex-row items-center flex-wrap"
-          accessibilityRole="button"
-          accessibilityLabel={`${item.title}, ${categoryText}, ${expiryText}`}
-          accessibilityHint={`Opens details for ${item.title}`}
+          onPress={() => handleItemPress(item.id)}
+          style={styles.itemCard}
+          activeOpacity={0.7}
         >
-          <View className="mr-3">
+          <View style={styles.itemIconContainer}>
             <CategoryIcon 
-              category={mapCategoryToDisplay(item.category) as any}
-              size={20}
+              category={category as any}
+              size={22}
             />
           </View>
-          <View className="flex-1 ml-1 min-w-0">
-            <Text 
-              className="text-slate-900 font-semibold text-base" 
-              numberOfLines={2}
-              accessibilityRole="text"
-            >
+          <View style={styles.itemContent}>
+            <Text style={styles.itemTitle} numberOfLines={1}>
               {item.title}
             </Text>
-            <Text 
-              className="text-slate-500 text-sm mt-0.5"
-              accessibilityRole="text"
-            >
-              Expires {formatDate(item.expiry_date)}
-            </Text>
-          </View>
-            <View className="ml-2">
-              {daysUntilExpiry !== null && daysUntilExpiry < 0 ? (
-                <NativeIcon 
-                  name="alert" 
-                  size={20} 
-                  color="#DC2626"
-                  accessibilityLabel={`Expired ${Math.abs(daysUntilExpiry)} days ago`}
-                />
-              ) : daysUntilExpiry !== null && daysUntilExpiry < 30 ? (
-                <NativeIcon 
-                  name="warning" 
-                  size={20} 
-                  color="#F59E0B"
-                  accessibilityLabel={`Expires in ${daysUntilExpiry} days`}
-                />
-              ) : null}
+            <View style={styles.itemMetadataRow}>
+              <Text style={styles.itemMetadata}>
+                {displayDate}
+              </Text>
+              {displayCost && (
+                <>
+                  <Text style={styles.itemSeparator}> • </Text>
+                  <Text style={styles.itemMetadata}>{displayCost}</Text>
+                </>
+              )}
             </View>
+          </View>
+          {isUrgent && (
+            <View style={styles.itemStatus}>
+              <View style={styles.urgentBadge}>
+                <Text style={styles.urgentBadgeText}>
+                  {daysUntilExpiry! > 0 ? `${daysUntilExpiry} days` : 'Expired'}
+                </Text>
+              </View>
+            </View>
+          )}
         </TouchableOpacity>
       </Swipeable>
     );
-  };
+  }, [handleItemPress, handleMarkDoneCallback, handleDelete]);
 
-    // nextExpiry and totalSavings are now memoized above
+  const filterChips: FilterChip[] = ['All', 'Urgent', 'Vehicle', 'Home', 'Digital'];
+
+  // Render Next Expiry Hero Card (memoized)
+  const renderHeroCard = useMemo(() => {
+    if (nextExpiry) {
+      const days = calculateDaysUntilExpiry(nextExpiry.expiry_date);
+      const isUrgent = days !== null && days <= 7;
+      
+      return (
+        <View style={styles.heroCard}>
+          <Text style={styles.heroLabel}>Next Expiry</Text>
+          <Text style={styles.heroTitle} numberOfLines={2}>
+            {nextExpiry.title}
+          </Text>
+          <View style={styles.heroFooter}>
+            {days !== null && (
+              <Text style={[
+                styles.heroDays,
+                isUrgent && styles.heroDaysUrgent
+              ]}>
+                {days > 0 
+                  ? `${days} ${days === 1 ? 'day' : 'days'} remaining`
+                  : days === 0 
+                    ? 'Expires today'
+                    : `Expired ${Math.abs(days)} ${Math.abs(days) === 1 ? 'day' : 'days'} ago`
+                }
+              </Text>
+            )}
+          </View>
+        </View>
+      );
+    }
+    
+    return (
+      <View style={styles.heroCard}>
+        <Text style={styles.heroLabel}>All Set</Text>
+        <Text style={styles.heroTitle}>No upcoming expiries</Text>
+        <Text style={styles.heroDays}>
+          Everything is up to date
+        </Text>
+      </View>
+    );
+  }, [nextExpiry]);
 
   return (
-    <GestureHandlerRootView className="flex-1">
-    <LinearGradient
-      colors={['#F3F4F6', '#FFFFFF']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-      className="flex-1"
-    >
-      {/* Offline Banner */}
-      {isOffline && (
-        <View 
-          className="bg-orange-500 px-6 py-3 flex-row items-center"
-          accessibilityRole="alert"
-          accessibilityLabel="No Internet Connection"
-          accessibilityLiveRegion="polite"
-        >
-          <NativeIcon name="wifi-off" size={18} color="#FFFFFF" />
-          <Text className="text-white font-medium ml-2 text-sm">
-            No Internet Connection - Some features may be unavailable
-          </Text>
-        </View>
-      )}
-      
-      {/* Header */}
-      <View className="px-6 pt-12 pb-4">
-          <View className="flex-row items-center justify-between mb-4">
-            <View className="flex-row items-center flex-1">
-              <TouchableOpacity
-                className="mr-3"
-                accessibilityRole="button"
-                accessibilityLabel="Profile"
-                accessibilityHint="View your profile"
-              >
-                <NativeIcon name="person-circle" size={24} color="#64748B" />
-              </TouchableOpacity>
-              <Text 
-                className="text-2xl font-semibold text-slate-900"
-                accessibilityRole="header"
-              >
-                {getGreeting()}
-              </Text>
+    <GestureHandlerRootView style={styles.container}>
+      <LinearGradient
+        colors={['#F5F5F7', '#FFFFFF']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={styles.gradient}
+      >
+        {isOffline && (
+          <View style={styles.offlineBanner}>
+            <NativeIcon name="wifi-off" size={16} color="#FFFFFF" />
+            <Text style={styles.offlineText}>
+              Not Connected
+            </Text>
+          </View>
+        )}
+        
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerRow}>
+            <View style={styles.greetingContainer}>
+              <Text style={styles.greeting}>{getGreeting()}</Text>
             </View>
-            <View className="flex-row items-center">
-              <TouchableOpacity
-                onPress={() => router.push('/settings')}
-                accessibilityRole="button"
-                accessibilityLabel="Settings"
-                accessibilityHint="Open app settings"
-              >
-                <NativeIcon name="settings" size={24} color="#64748B" />
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              onPress={() => router.push('/settings')}
+              style={styles.settingsButton}
+              accessibilityRole="button"
+              accessibilityLabel="Settings"
+            >
+              <NativeIcon name="settings" size={22} color="#8E8E93" />
+            </TouchableOpacity>
           </View>
 
+          {/* Next Expiry Card */}
+          {renderHeroCard}
+
           {/* Search Bar */}
-          <View className="bg-white border border-purple-100 rounded-2xl px-4 py-3 flex-row items-center mb-3 shadow-sm">
-            <NativeIcon name="search" size={20} color="#94A3B8" />
+          <View style={styles.searchBar}>
+            <NativeIcon name="search" size={18} color="#8E8E93" />
             <TextInput
               value={searchQuery}
               onChangeText={setSearchQuery}
-              placeholder="Search Items"
-              placeholderTextColor="#94A3B8"
-              className="flex-1 ml-3 text-slate-900"
-              style={{ caretColor: '#9333EA' }}
-              accessibilityLabel="Search Items"
-              accessibilityHint="Type to search for items by name"
+              placeholder="Search"
+              placeholderTextColor="#8E8E93"
+              style={styles.searchInput}
+              accessibilityLabel="Search documents"
+              returnKeyType="search"
             />
           </View>
 
@@ -336,155 +305,359 @@ export default function DashboardScreen() {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            className="flex-row"
-            contentContainerStyle={{ paddingRight: 16 }}
+            contentContainerStyle={styles.filterChipsContainer}
+            style={styles.filterChipsScroll}
           >
-            {(['All', 'Urgent', 'Vehicle', 'Home', 'Digital'] as FilterChip[]).map((chip) => (
-              <TouchableOpacity
-                key={chip}
-                onPress={() => setSelectedChip(chip)}
-                className={`px-4 py-2 rounded-full mr-2 ${
-                  selectedChip === chip ? 'bg-purple-600' : 'bg-white border border-purple-100'
-                }`}
-                accessibilityRole="button"
-                accessibilityLabel={`Filter by ${chip}`}
-                accessibilityState={{ selected: selectedChip === chip }}
-              >
-                <Text
-                  className={`font-semibold text-sm ${
-                    selectedChip === chip ? 'text-white' : 'text-slate-700'
-                  }`}
+            {filterChips.map((chip) => {
+              const isSelected = selectedChip === chip;
+              return (
+                <TouchableOpacity
+                  key={chip}
+                  onPress={() => {
+                    triggerHaptic('light');
+                    setSelectedChip(chip);
+                  }}
+                  style={[
+                    styles.filterChip,
+                    isSelected && styles.filterChipSelected
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Filter by ${chip}`}
+                  accessibilityState={{ selected: isSelected }}
+                  activeOpacity={0.7}
                 >
-                  {chip}
-                </Text>
-              </TouchableOpacity>
-            ))}
+                  <Text style={[
+                    styles.filterChipText,
+                    isSelected && styles.filterChipTextSelected
+                  ]}>
+                    {chip}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </ScrollView>
         </View>
 
-        {/* Hero Section */}
-        <View className="px-6 py-6">
-          {totalSavings > 0 ? (
-            <View className="bg-white rounded-2xl p-6 shadow-md border border-purple-50">
-              <Text className="text-slate-500 text-sm mb-2">Total Potential Savings</Text>
-              <Text className="text-4xl font-semibold text-purple-600 mb-1">
-                £{totalSavings.toFixed(0)}
-              </Text>
-              <Text className="text-slate-500 text-sm">
-                Switch to independent services
-              </Text>
-            </View>
-          ) : nextExpiry ? (
-            <View className="bg-white rounded-2xl p-6 shadow-md border border-purple-50">
-              <Text className="text-slate-500 text-sm mb-2">Next Expiry</Text>
-              <Text className="text-2xl font-semibold text-slate-900 mb-1">
-                {nextExpiry.title}
-              </Text>
-              <Text className="text-slate-500 text-sm">
-                {formatDate(nextExpiry.expiry_date)}
-              </Text>
-            </View>
-          ) : (
-            <View className="bg-white rounded-2xl p-6 shadow-md border border-purple-50">
-              <Text className="text-slate-500 text-sm mb-2">All Set</Text>
-              <Text className="text-2xl font-semibold text-slate-900">
-                No urgent items
-              </Text>
-            </View>
-          )}
-        </View>
-
-        {/* Toggle */}
-        <View className="px-6 mb-4">
-          <View className="bg-white border border-purple-100 rounded-full p-1 flex-row shadow-sm">
-            <TouchableOpacity
-              onPress={() => setFilter('active')}
-              className={`flex-1 py-2 rounded-full ${
-                filter === 'active' ? 'bg-purple-600 shadow-sm' : ''
-              }`}
-              accessibilityRole="button"
-              accessibilityLabel="Active items"
-              accessibilityHint="Shows all active items"
-              accessibilityState={{ selected: filter === 'active' }}
-            >
-              <Text className={`text-center font-semibold ${
-                filter === 'active' ? 'text-white' : 'text-slate-500'
-              }`}>
-                Active
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setFilter('urgent')}
-              className={`flex-1 py-2 rounded-full ${
-                filter === 'urgent' ? 'bg-rose-500 shadow-sm' : ''
-              }`}
-              accessibilityRole="button"
-              accessibilityLabel="Urgent items"
-              accessibilityHint="Shows only urgent items expiring within 30 days"
-              accessibilityState={{ selected: filter === 'urgent' }}
-            >
-              <Text className={`text-center font-semibold ${
-                filter === 'urgent' ? 'text-white' : 'text-slate-500'
-              }`}>
-                Urgent
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* List */}
+        {/* Content */}
         {isLoading ? (
-          <View className="px-4 pt-4">
+          <View style={styles.loadingContainer}>
             <SkeletonRow />
             <SkeletonRow />
             <SkeletonRow />
           </View>
         ) : filteredItems.length === 0 ? (
-          <View className="flex-1 items-center justify-center px-6 py-20">
-            {debouncedSearchQuery.trim() || selectedChip !== 'All' ? (
-              <>
-                <View className="mb-4">
-                  <NativeIcon name="search" size={48} color="#94A3B8" />
-                </View>
-                <Text className="text-slate-900 font-semibold text-lg mb-2">No Results</Text>
-                <Text className="text-slate-500 text-sm text-center">
-                  Check the spelling or try a new category
-                </Text>
-              </>
-            ) : (
-              <>
-                <Text className="text-slate-900 font-bold text-lg mb-2">No Items</Text>
-                <Text className="text-slate-500 text-sm text-center">
-                  Tap + to scan your first bill.
-                </Text>
-              </>
-            )}
+          <View style={styles.emptyState}>
+            <View style={styles.emptyIconContainer}>
+              <NativeIcon name="file-text" size={56} color="#C7C7CC" />
+            </View>
+            <Text style={styles.emptyTitle}>
+              {debouncedSearchQuery.trim() || selectedChip !== 'All' 
+                ? 'No Results'
+                : 'No Documents'
+              }
+            </Text>
+            <Text style={styles.emptyText}>
+              {debouncedSearchQuery.trim() || selectedChip !== 'All' 
+                ? 'Try adjusting your search or filters'
+                : 'Add your first document to get started'
+              }
+            </Text>
           </View>
         ) : (
-          <FlashList
-            data={filteredItems}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            estimatedItemSize={85}
-            drawDistance={250}
-            refreshing={isLoading}
-            onRefresh={() => refetch()}
-            contentContainerStyle={{ paddingVertical: 8, paddingBottom: 100 }}
-          />
+          <View style={styles.listContainer}>
+            <FlashList
+              data={filteredItems}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id}
+              refreshing={isLoading}
+              onRefresh={() => refetch()}
+              contentContainerStyle={styles.listContent}
+              removeClippedSubviews={true}
+            />
+          </View>
         )}
-      <TabBar />
-      
-      {/* Floating Action Button - Add Item */}
-      <TouchableOpacity
-        onPress={() => router.push('/(tabs)/scan')}
-        className="absolute bottom-24 right-6 w-14 h-14 rounded-full bg-purple-600 items-center justify-center shadow-lg"
-        accessibilityRole="button"
-        accessibilityLabel="Add Item"
-        accessibilityHint="Opens the camera to scan a new bill or document"
-      >
-        <NativeIcon name="plus" size={28} color="#FFFFFF" />
-      </TouchableOpacity>
-    </LinearGradient>
+        
+        <TabBar />
+        
+        {/* Floating Action Button */}
+        <TouchableOpacity
+          onPress={() => {
+            triggerHaptic('light');
+            router.push('/(tabs)/scan');
+          }}
+          style={styles.fab}
+          accessibilityRole="button"
+          accessibilityLabel="Scan document"
+          activeOpacity={0.8}
+        >
+          <NativeIcon name="plus" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+      </LinearGradient>
     </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  gradient: {
+    flex: 1,
+  },
+  offlineBanner: {
+    backgroundColor: '#FF9500',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  offlineText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '500',
+  },
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 20,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 32,
+  },
+  greetingContainer: {
+    flex: 1,
+  },
+  greeting: {
+    fontSize: 34,
+    fontWeight: '700',
+    color: '#000000',
+    letterSpacing: -0.4,
+  },
+  settingsButton: {
+    padding: 8,
+    marginLeft: 8,
+  },
+  heroCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    elevation: 3,
+  },
+  heroLabel: {
+    fontSize: 15,
+    color: '#8E8E93',
+    marginBottom: 8,
+    fontWeight: '500',
+    letterSpacing: -0.2,
+  },
+  heroTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#000000',
+    marginBottom: 8,
+    letterSpacing: -0.6,
+  },
+  heroFooter: {
+    marginTop: 4,
+  },
+  heroDays: {
+    fontSize: 17,
+    color: '#8E8E93',
+    fontWeight: '500',
+  },
+  heroDaysUrgent: {
+    color: '#FF3B30',
+    fontWeight: '600',
+  },
+  searchBar: {
+    backgroundColor: '#F2F2F7',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    gap: 12,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 17,
+    color: '#000000',
+    fontWeight: '400',
+  },
+  filterChipsScroll: {
+    marginBottom: 4,
+  },
+  filterChipsContainer: {
+    paddingRight: 20,
+    gap: 10,
+  },
+  filterChip: {
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 20,
+    backgroundColor: '#F2F2F7',
+    borderWidth: 0,
+  },
+  filterChipSelected: {
+    backgroundColor: '#007AFF',
+  },
+  filterChipText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#000000',
+    letterSpacing: -0.2,
+  },
+  filterChipTextSelected: {
+    color: '#FFFFFF',
+  },
+  loadingContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+  },
+  emptyState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 40,
+    paddingVertical: 100,
+  },
+  emptyIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#F2F2F7',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+  },
+  emptyTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#000000',
+    marginBottom: 8,
+    letterSpacing: -0.4,
+    textAlign: 'center',
+  },
+  emptyText: {
+    fontSize: 17,
+    color: '#8E8E93',
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  listContainer: {
+    flex: 1,
+  },
+  listContent: {
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 100,
+  },
+  itemCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 0.5,
+    borderColor: '#E5E5EA',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 1,
+  },
+  itemIconContainer: {
+    marginRight: 14,
+  },
+  itemContent: {
+    flex: 1,
+    minWidth: 0,
+  },
+  itemTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#000000',
+    marginBottom: 4,
+    letterSpacing: -0.4,
+  },
+  itemMetadataRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  itemMetadata: {
+    fontSize: 15,
+    color: '#8E8E93',
+    fontWeight: '400',
+  },
+  itemSeparator: {
+    fontSize: 15,
+    color: '#C7C7CC',
+    marginHorizontal: 4,
+  },
+  itemStatus: {
+    marginLeft: 12,
+  },
+  urgentBadge: {
+    backgroundColor: '#FF3B30',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  urgentBadgeText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    letterSpacing: -0.2,
+  },
+  swipeActionLeft: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#34C759',
+    borderRadius: 16,
+    marginLeft: 20,
+    marginBottom: 12,
+  },
+  swipeActionRight: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FF3B30',
+    borderRadius: 16,
+    marginRight: 20,
+    marginBottom: 12,
+  },
+  swipeButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 96,
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#007AFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#007AFF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+});

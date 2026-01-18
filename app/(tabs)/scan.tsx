@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, Alert, AccessibilityInfo } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, Alert, AccessibilityInfo, StyleSheet } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
@@ -27,31 +27,30 @@ export default function ScanScreen() {
   const { user } = useAuth();
 
   useEffect(() => {
-    // Check if reduce transparency is enabled
     AccessibilityInfo.isReduceTransparencyEnabled().then(setReduceTransparency);
   }, []);
 
   if (!permission) {
-    return <View className="flex-1 items-center justify-center bg-white" />;
+    return <View style={styles.container} />;
   }
 
   if (!permission.granted) {
     return (
-      <View className="flex-1 items-center justify-center bg-white p-4">
-        <Text className="text-lg font-semibold text-slate-800 mb-2 text-center">
-          Camera permission required
+      <View style={[styles.container, styles.permissionContainer]}>
+        <Text style={styles.permissionTitle}>
+          Camera Access Required
         </Text>
-        <Text className="text-sm text-slate-500 mb-4 text-center">
-          SpotCheck needs camera access to scan your documents.
+        <Text style={styles.permissionText}>
+          SpotCheck needs access to your camera to scan documents.
         </Text>
         <TouchableOpacity
           onPress={requestPermission}
-          className="bg-blue-600 px-6 py-3 rounded-xl"
+          style={styles.permissionButton}
           accessibilityRole="button"
-          accessibilityLabel="Grant Camera Permission"
-          accessibilityHint="Allows SpotCheck to access your camera to scan documents"
+          accessibilityLabel="Allow Camera Access"
+          activeOpacity={0.8}
         >
-          <Text className="text-white font-semibold">Grant Permission</Text>
+          <Text style={styles.permissionButtonText}>Allow Access</Text>
         </TouchableOpacity>
       </View>
     );
@@ -61,7 +60,7 @@ export default function ScanScreen() {
     if (!cameraRef.current) return;
 
     if (isOffline) {
-      setToastMessage('No Internet Connection. Reconnect to scan.');
+      setToastMessage('Connect to the internet to scan documents');
       setToastVisible(true);
       return;
     }
@@ -83,7 +82,7 @@ export default function ScanScreen() {
       if (!extractedText || extractedText.trim().length === 0) {
         Alert.alert(
           'No Text Found',
-          'Could not extract text from the image. Please try again with better lighting.',
+          'Couldn\'t find any text in this image. Try again with better lighting.',
           [{ text: 'OK' }]
         );
         setIsAnalyzing(false);
@@ -92,12 +91,10 @@ export default function ScanScreen() {
 
       const analysisResult = await analyzeText(extractedText);
 
-      // Trigger success feedback
       triggerHaptic('success');
       triggerSound('success');
       
-      // Visual feedback for deaf users
-      setToastMessage('Document scanned successfully');
+      setToastMessage('Document scanned');
       setToastVisible(true);
 
       router.push({
@@ -109,7 +106,6 @@ export default function ScanScreen() {
       });
     } catch (error) {
       if (error instanceof PaywallError) {
-        // Show paywall for scan limit
         setIsAnalyzing(false);
         showPaywall();
         return;
@@ -119,9 +115,8 @@ export default function ScanScreen() {
         console.error('Scan error:', error);
       }
       Alert.alert(
-        'Scan Failed',
-        error instanceof Error ? error.message : 'An error occurred while scanning. Please try again.',
-        [{ text: 'OK' }]
+        'Unable to Scan',
+        error instanceof Error ? error.message : 'This document couldn\'t be scanned. Please try again.'
       );
     } finally {
       setIsAnalyzing(false);
@@ -129,50 +124,46 @@ export default function ScanScreen() {
   };
 
   return (
-    <View className="flex-1 bg-black">
+    <View style={styles.cameraContainer}>
       <CameraView
         ref={cameraRef}
-        className="flex-1"
+        style={styles.camera}
         facing={facing}
       >
         {/* Overlay Frame */}
-        <View className="absolute inset-0 items-center justify-center">
-          <View className="w-80 h-96 border-2 border-white/50 rounded-2xl" />
-          <View className="absolute top-0 left-0 right-0 h-40 bg-black/40" />
-          <View className="absolute bottom-0 left-0 right-0 h-40 bg-black/40" />
-          <View className="absolute top-40 left-0 w-20 h-96 bg-black/40" />
-          <View className="absolute top-40 right-0 w-20 h-96 bg-black/40" />
+        <View style={styles.overlayContainer}>
+          <View style={styles.overlayFrame} />
+          <View style={styles.overlayTop} />
+          <View style={styles.overlayBottom} />
+          <View style={styles.overlayLeft} />
+          <View style={styles.overlayRight} />
         </View>
 
         {/* Loading Overlay */}
         {isAnalyzing && (
           <View 
-            className={`absolute inset-0 items-center justify-center ${
-              reduceTransparency ? 'bg-black/90' : ''
-            }`}
+            style={[
+              styles.loadingOverlay,
+              reduceTransparency && styles.loadingOverlaySolid
+            ]}
             accessibilityRole="progressbar"
             accessibilityLabel="Analyzing document"
-            accessibilityLiveRegion="polite"
           >
             {reduceTransparency ? (
-              <View className="bg-white rounded-3xl p-8 items-center shadow-lg">
-                <ActivityIndicator size="large" color="#2563EB" />
-                  <Text className="text-slate-900 font-semibold mt-4 text-lg">
-                    Analyzing...
-                  </Text>
-                <Text className="text-slate-500 text-sm mt-2 text-center">
-                  This may take a few seconds
+              <View style={styles.loadingCard}>
+                <ActivityIndicator size="large" color="#007AFF" />
+                <Text style={styles.loadingTitle}>Analyzing...</Text>
+                <Text style={styles.loadingText}>
+                  This may take a moment
                 </Text>
               </View>
             ) : (
-              <BlurView intensity={20} className="absolute inset-0 items-center justify-center">
-                <View className="bg-white/95 rounded-3xl p-8 items-center shadow-lg">
-                  <ActivityIndicator size="large" color="#2563EB" />
-                  <Text className="text-slate-900 font-semibold mt-4 text-lg">
-                    Analyzing...
-                  </Text>
-                  <Text className="text-slate-500 text-sm mt-2 text-center">
-                    This may take a few seconds
+              <BlurView intensity={20} style={styles.blurContainer}>
+                <View style={styles.loadingCard}>
+                  <ActivityIndicator size="large" color="#007AFF" />
+                  <Text style={styles.loadingTitle}>Analyzing...</Text>
+                  <Text style={styles.loadingText}>
+                    This may take a moment
                   </Text>
                 </View>
               </BlurView>
@@ -181,25 +172,23 @@ export default function ScanScreen() {
         )}
 
         {/* Bottom Controls */}
-        <View className="absolute bottom-0 left-0 right-0 p-6 pb-10">
-          <View className="items-center">
+        <View style={styles.controlsContainer}>
+          <View style={styles.controls}>
             <TouchableOpacity
               onPress={handleCapture}
               disabled={isAnalyzing || isOffline}
-              className={`w-20 h-20 rounded-full bg-white shadow-lg items-center justify-center ${
-                isOffline ? 'opacity-50' : ''
-              }`}
+              style={[
+                styles.captureButton,
+                (isAnalyzing || isOffline) && styles.captureButtonDisabled
+              ]}
               accessibilityRole="button"
-              accessibilityLabel="Capture Photo"
-              accessibilityHint={isOffline ? "Requires internet connection. You are currently offline." : "Takes a photo of the document for scanning"}
+              accessibilityLabel="Capture photo"
               accessibilityState={{ disabled: isAnalyzing || isOffline }}
+              activeOpacity={0.8}
             >
-              <View className="w-16 h-16 rounded-full border-4 border-slate-300" />
+              <View style={styles.captureButtonInner} />
             </TouchableOpacity>
-            <Text 
-              className="text-white text-sm mt-4 text-center"
-              accessibilityRole="text"
-            >
+            <Text style={styles.captureHint}>
               Position document in frame
             </Text>
           </View>
@@ -215,3 +204,188 @@ export default function ScanScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  permissionContainer: {
+    padding: 40,
+  },
+  permissionTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#000000',
+    marginBottom: 12,
+    textAlign: 'center',
+    letterSpacing: -0.4,
+  },
+  permissionText: {
+    fontSize: 17,
+    color: '#8E8E93',
+    marginBottom: 32,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  permissionButton: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 32,
+    paddingVertical: 14,
+    borderRadius: 14,
+    shadowColor: '#007AFF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  permissionButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 17,
+    letterSpacing: -0.2,
+  },
+  cameraContainer: {
+    flex: 1,
+    backgroundColor: '#000000',
+  },
+  camera: {
+    flex: 1,
+  },
+  overlayContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  overlayFrame: {
+    width: 320,
+    height: 384,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.6)',
+    borderRadius: 16,
+  },
+  overlayTop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 160,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  overlayBottom: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 160,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  overlayLeft: {
+    position: 'absolute',
+    top: 160,
+    left: 0,
+    width: 80,
+    height: 384,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  overlayRight: {
+    position: 'absolute',
+    top: 160,
+    right: 0,
+    width: 80,
+    height: 384,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingOverlaySolid: {
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+  },
+  blurContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 32,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  loadingTitle: {
+    color: '#000000',
+    fontWeight: '600',
+    fontSize: 17,
+    marginTop: 20,
+    letterSpacing: -0.2,
+  },
+  loadingText: {
+    color: '#8E8E93',
+    fontSize: 15,
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  controlsContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+  },
+  controls: {
+    alignItems: 'center',
+  },
+  captureButton: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  captureButtonDisabled: {
+    opacity: 0.5,
+  },
+  captureButtonInner: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 3,
+    borderColor: '#000000',
+  },
+  captureHint: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    marginTop: 20,
+    textAlign: 'center',
+    fontWeight: '400',
+  },
+});

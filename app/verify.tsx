@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
@@ -80,19 +80,19 @@ export default function VerifyScreen() {
       if (__DEV__) {
         console.error('Error parsing params:', error);
       }
-      Alert.alert('Error', 'Failed to load analysis data');
+      Alert.alert('Unable to Load', 'This document couldn\'t be loaded. Please try again.');
       router.back();
     }
   }, [params]);
 
   const handleSave = async () => {
     if (!user) {
-      Alert.alert('Error', 'You must be logged in to save items');
+      Alert.alert('Sign In Required', 'Please sign in to save documents');
       return;
     }
 
     if (!title.trim()) {
-      Alert.alert('Error', 'Please enter a title');
+      Alert.alert('Title Required', 'Please enter a title for this document');
       return;
     }
 
@@ -124,14 +124,12 @@ export default function VerifyScreen() {
 
       await addItem(insertData);
 
-      // Trigger success feedback
       triggerHaptic('success');
       
-      // Visual feedback for deaf users
-      setToastMessage('Item saved successfully');
+      setToastMessage('Document saved');
       setToastVisible(true);
 
-      Alert.alert('Success', 'Item saved successfully', [
+      Alert.alert('Saved', 'Your document has been saved', [
         {
           text: 'OK',
           onPress: () => router.replace('/(tabs)/'),
@@ -142,147 +140,131 @@ export default function VerifyScreen() {
         console.error('Save error:', error);
       }
       Alert.alert(
-        'Error',
-        error instanceof Error ? error.message : 'Failed to save item'
+        'Unable to Save',
+        error instanceof Error ? error.message : 'This document couldn\'t be saved. Please try again.'
       );
     }
   };
 
   return (
     <LinearGradient
-      colors={['#F3F4F6', '#FFFFFF']}
+      colors={['#F5F5F7', '#FFFFFF']}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
-      className="flex-1"
+      style={styles.gradient}
     >
-      <View className="bg-white rounded-t-3xl flex-1 mt-20 shadow-lg border border-purple-50">
+      <View style={styles.container}>
         {/* Header */}
-        <View className="flex-row items-center justify-between p-6 border-b border-purple-100">
-          <Text 
-            className="text-2xl font-semibold text-slate-900"
-            accessibilityRole="header"
-          >
+        <View style={styles.header}>
+          <Text style={styles.headerTitle} accessibilityRole="header">
             Verify Details
           </Text>
           <TouchableOpacity 
             onPress={() => router.back()}
+            style={styles.closeButton}
             accessibilityRole="button"
             accessibilityLabel="Close"
-            accessibilityHint="Closes the verification screen and returns to previous screen"
+            activeOpacity={0.7}
           >
-            <NativeIcon name="close" size={24} color="#64748B" />
+            <NativeIcon name="close" size={22} color="#8E8E93" />
           </TouchableOpacity>
         </View>
 
-        <ScrollView className="flex-1" contentContainerStyle={{ padding: 24 }}>
+        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
           {/* Category Picker - Horizontal Scroll */}
-          <View className="mb-6">
-            <Text 
-              className="text-sm font-semibold text-slate-700 mb-3"
-              accessibilityRole="text"
-            >
+          <View style={styles.categorySection}>
+            <Text style={styles.label} accessibilityRole="text">
               Category
             </Text>
             <ScrollView 
               horizontal 
-              showsHorizontalScrollIndicator={false} 
-              className="flex-row"
-              accessibilityRole="radiogroup"
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.categoryScroll}
             >
-              {CATEGORIES.map((cat) => (
-                <TouchableOpacity
-                  key={cat}
-                  onPress={() => setCategory(cat)}
-                  className={`mr-3 items-center ${
-                    category === cat ? 'opacity-100' : 'opacity-50'
-                  }`}
-                  accessibilityRole="radio"
-                  accessibilityLabel={cat}
-                  accessibilityHint={`Select ${cat} as the category`}
-                  accessibilityState={{ selected: category === cat }}
-                >
-                  <View className={`mb-2 ${
-                    category === cat ? 'border-2 border-purple-600 rounded-full' : ''
-                  }`}>
-                    <CategoryIcon category={cat} size={24} />
-                  </View>
-                  <Text className={`text-xs font-medium ${
-                    category === cat ? 'text-purple-600' : 'text-slate-500'
-                  }`}>
-                    {cat}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+              {CATEGORIES.map((cat) => {
+                const isSelected = category === cat;
+                return (
+                  <TouchableOpacity
+                    key={cat}
+                    onPress={() => setCategory(cat)}
+                    style={styles.categoryItem}
+                    accessibilityRole="radio"
+                    accessibilityLabel={cat}
+                    accessibilityState={{ selected: isSelected }}
+                    activeOpacity={0.7}
+                  >
+                    <View style={[
+                      styles.categoryIconWrapper,
+                      isSelected && styles.categoryIconSelected
+                    ]}>
+                      <CategoryIcon category={cat} size={24} />
+                    </View>
+                    <Text style={[
+                      styles.categoryLabel,
+                      isSelected && styles.categoryLabelSelected
+                    ]}>
+                      {cat}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
             </ScrollView>
           </View>
 
           {/* Title */}
-          <View className="mb-4">
-            <Text 
-              className="text-sm font-semibold text-slate-700 mb-2"
-              accessibilityRole="text"
-            >
+          <View style={styles.inputSection}>
+            <Text style={styles.label} accessibilityRole="text">
               Title
             </Text>
             <TextInput
               value={title}
               onChangeText={setTitle}
-              placeholder="Document title"
-              className="bg-white border border-purple-100 rounded-2xl px-4 py-4 text-slate-900 shadow-sm"
-              placeholderTextColor="#94A3B8"
-              style={{ caretColor: '#9333EA' }}
-              accessibilityLabel="Document title"
-              accessibilityHint="Enter the title for this document"
+              placeholder="Document name"
+              style={styles.textInput}
+              placeholderTextColor="#8E8E93"
             />
           </View>
 
           {/* Vehicle Reg Plate - Only for Vehicle category */}
           {category === 'Vehicle' && (
-            <View className="mb-4">
-              <Text 
-                className="text-sm font-semibold text-slate-700 mb-2"
-                accessibilityRole="text"
-              >
-                Registration Plate
+            <View style={styles.inputSection}>
+              <Text style={styles.label} accessibilityRole="text">
+                Registration Number
               </Text>
               <TextInput
                 value={vehicleReg}
                 onChangeText={setVehicleReg}
                 placeholder="AB12 CDE"
                 autoCapitalize="characters"
-                className="bg-white border border-purple-100 rounded-2xl px-4 py-4 text-slate-900 shadow-sm"
-                placeholderTextColor="#94A3B8"
-                style={{ caretColor: '#9333EA' }}
-                accessibilityLabel="Vehicle registration plate"
-                accessibilityHint="Enter the vehicle registration number"
+                style={styles.textInput}
+                placeholderTextColor="#8E8E93"
+                accessibilityLabel="Vehicle registration number"
               />
             </View>
           )}
 
           {/* Expiry Date */}
-          <View className="mb-4">
-            <Text className="text-sm font-semibold text-slate-700 mb-2">Expiry Date</Text>
+          <View style={styles.inputSection}>
+            <Text style={styles.label}>Expiry Date</Text>
             <TextInput
               value={expiryDate}
               onChangeText={setExpiryDate}
               placeholder="DD/MM/YYYY"
-              className="bg-white border border-purple-100 rounded-2xl px-4 py-4 text-slate-900 shadow-sm"
-              placeholderTextColor="#94A3B8"
-              style={{ caretColor: '#9333EA' }}
+              style={styles.textInput}
+              placeholderTextColor="#8E8E93"
             />
           </View>
 
           {/* Cost */}
-          <View className="mb-6">
-            <Text className="text-sm font-semibold text-slate-700 mb-2">Cost (£)</Text>
+          <View style={styles.inputSection}>
+            <Text style={styles.label}>Monthly Cost</Text>
             <TextInput
               value={cost}
               onChangeText={setCost}
               placeholder="45.99"
               keyboardType="decimal-pad"
-              className="bg-white border border-purple-100 rounded-2xl px-4 py-4 text-slate-900 shadow-sm"
-              placeholderTextColor="#94A3B8"
-              style={{ caretColor: '#9333EA' }}
+              style={styles.textInput}
+              placeholderTextColor="#8E8E93"
             />
           </View>
 
@@ -290,14 +272,17 @@ export default function VerifyScreen() {
           <TouchableOpacity
             onPress={handleSave}
             disabled={isAdding}
-            className={`bg-purple-600 py-4 rounded-3xl shadow-md ${isAdding ? 'opacity-50' : ''}`}
+            style={[
+              styles.saveButton,
+              isAdding && styles.saveButtonDisabled
+            ]}
             accessibilityRole="button"
-            accessibilityLabel={isAdding ? 'Saving item' : 'Save Item'}
-            accessibilityHint="Saves the item to your list"
+            accessibilityLabel={isAdding ? 'Saving...' : 'Save document'}
             accessibilityState={{ disabled: isAdding }}
+            activeOpacity={0.8}
           >
-            <Text className="text-white font-semibold text-center text-lg">
-              {isAdding ? 'Saving...' : 'Save Item'}
+            <Text style={styles.saveButtonText}>
+              {isAdding ? 'Saving...' : 'Save'}
             </Text>
           </TouchableOpacity>
         </ScrollView>
@@ -311,3 +296,115 @@ export default function VerifyScreen() {
     </LinearGradient>
   );
 }
+
+const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+  },
+  container: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    flex: 1,
+    marginTop: 100,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 8,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#E5E5EA',
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#000000',
+    letterSpacing: -0.6,
+  },
+  closeButton: {
+    padding: 8,
+    marginRight: -8,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: 20,
+  },
+  categorySection: {
+    marginBottom: 28,
+  },
+  label: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#000000',
+    marginBottom: 12,
+    letterSpacing: -0.2,
+  },
+  categoryScroll: {
+    gap: 16,
+  },
+  categoryItem: {
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  categoryIconWrapper: {
+    marginBottom: 10,
+    borderRadius: 20,
+  },
+  categoryIconSelected: {
+    borderWidth: 2,
+    borderColor: '#007AFF',
+  },
+  categoryLabel: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#8E8E93',
+  },
+  categoryLabelSelected: {
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+  inputSection: {
+    marginBottom: 24,
+  },
+  textInput: {
+    backgroundColor: '#F2F2F7',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 17,
+    color: '#000000',
+    fontWeight: '400',
+    borderWidth: 0,
+  },
+  saveButton: {
+    backgroundColor: '#007AFF',
+    borderRadius: 14,
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+    shadowColor: '#007AFF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  saveButtonDisabled: {
+    opacity: 0.5,
+  },
+  saveButtonText: {
+    color: '#FFFFFF',
+    fontSize: 17,
+    fontWeight: '600',
+    letterSpacing: -0.2,
+  },
+});

@@ -59,5 +59,44 @@ target 'SpotCheck' do
       :mac_catalyst_enabled => false,
       :ccache_enabled => ccache_enabled?(podfile_properties),
     )
+    
+    # Fix: Remove ARM64 exclusion for simulator builds (allows ARM64 simulators on Apple Silicon)
+    # Remove from all Pod targets
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = ""
+      end
+    end
+    
+    # Also remove from the main app target via Pods xcconfig
+    installer.pods_project.build_configurations.each do |config|
+      config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = ""
+    end
+    
+    # Override in the main project's app target as well
+    installer.aggregate_targets.each do |aggregate_target|
+      aggregate_target.user_project.targets.each do |target|
+        target.build_configurations.each do |config|
+          # Remove ARM64 exclusion if present
+          excluded_archs = config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"]
+          if excluded_archs == "arm64"
+            config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = ""
+          end
+          
+          # Fix: Exclude MLImage framework paths for simulator builds
+          # MLImage framework is device-only, causing linker errors on simulator
+          framework_search_paths = config.build_settings["FRAMEWORK_SEARCH_PATHS"]
+          if framework_search_paths
+            # Handle both array and string formats
+            paths_array = framework_search_paths.is_a?(Array) ? framework_search_paths : framework_search_paths.split(/\s+/)
+            # Create a copy for simulator builds that excludes MLImage
+            simulator_paths = paths_array.reject { |path| path.to_s.include?("MLImage/Frameworks") }
+            if simulator_paths != paths_array && simulator_paths.any?
+              config.build_settings["FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*]"] = simulator_paths
+            end
+          end
+        end
+      end
+    end
   end
 end

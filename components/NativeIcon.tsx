@@ -54,7 +54,9 @@ type IconName =
   | 'arrow-right'
   | 'back'
   | 'person-circle'
-  | 'plus';
+  | 'plus'
+  | 'chart'
+  | 'statistics';
 
 // Platform-specific icon mapping
 const ICON_MAP: Record<IconName, { ios: string; android: string }> = {
@@ -109,6 +111,8 @@ const ICON_MAP: Record<IconName, { ios: string; android: string }> = {
   back: { ios: 'chevron.left', android: 'arrow-back' },
   'person-circle': { ios: 'person.circle.fill', android: 'account-circle' },
   plus: { ios: 'plus', android: 'add' },
+  chart: { ios: 'chart.bar.fill', android: 'bar-chart' },
+  statistics: { ios: 'chart.bar.fill', android: 'bar-chart' },
 };
 
 interface NativeIconProps {

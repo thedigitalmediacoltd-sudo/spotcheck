@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { 
   View, 
   Text, 
@@ -7,7 +7,8 @@ import {
   TouchableOpacity, 
   KeyboardAvoidingView, 
   Platform,
-  ActivityIndicator 
+  ActivityIndicator,
+  StyleSheet,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/context/AuthContext';
@@ -32,7 +33,7 @@ export default function ChatScreen() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'initial',
-      text: "I've analyzed your items. Ask me how to save money.",
+      text: "I've analyzed your documents. How can I help you save money?",
       isUser: false,
       timestamp: new Date(),
     },
@@ -47,7 +48,6 @@ export default function ChatScreen() {
   const { profile } = useProfile();
 
   useEffect(() => {
-    // Scroll to bottom when new messages are added
     setTimeout(() => {
       flatListRef.current?.scrollToEnd({ animated: true });
     }, 100);
@@ -57,12 +57,11 @@ export default function ChatScreen() {
     if (!inputText.trim() || !user || isLoading) return;
 
     if (isOffline) {
-      setToastMessage('No Internet Connection. Reconnect to send messages.');
+      setToastMessage('Connect to the internet to send messages');
       setToastVisible(true);
       return;
     }
 
-    // Check if user has Pro (Chat is Pro-only feature)
     if (!profile?.is_pro) {
       showPaywall();
       return;
@@ -75,13 +74,11 @@ export default function ChatScreen() {
       timestamp: new Date(),
     };
 
-    // Add user message immediately
     setMessages(prev => [...prev, userMessage]);
     setInputText('');
     setIsLoading(true);
 
     try {
-      // Get AI response
       const response = await sendMessage(inputText.trim(), user.id);
 
       const aiMessage: Message = {
@@ -98,13 +95,12 @@ export default function ChatScreen() {
       }
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: error instanceof Error ? error.message : 'Sorry, I encountered an error. Please try again.',
+        text: error instanceof Error ? error.message : 'Something went wrong. Please try again.',
         isUser: false,
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);
       
-      // Visual feedback for errors
       setToastMessage('Failed to send message');
       setToastVisible(true);
     } finally {
@@ -112,124 +108,260 @@ export default function ChatScreen() {
     }
   };
 
-  const renderMessage = ({ item }: { item: Message }) => {
-      if (item.isUser) {
+  const renderMessage = useCallback(({ item }: { item: Message }) => {
+    if (item.isUser) {
       return (
-        <View className="flex-row justify-end mb-4 px-4">
-          <View className="bg-purple-600 rounded-3xl rounded-tr-sm px-4 py-3 max-w-[80%]">
-            <Text className="text-white text-sm">{item.text}</Text>
+        <View style={styles.messageRowRight}>
+          <View style={styles.userMessage}>
+            <Text style={styles.userMessageText}>{item.text}</Text>
           </View>
         </View>
       );
     } else {
       return (
-        <View className="flex-row justify-start mb-4 px-4">
-          <View className="bg-slate-200 rounded-2xl rounded-tl-sm px-4 py-3 max-w-[80%]">
-            <Text className="text-slate-900 text-sm">{item.text}</Text>
+        <View style={styles.messageRowLeft}>
+          <View style={styles.aiMessage}>
+            <Text style={styles.aiMessageText}>{item.text}</Text>
           </View>
         </View>
       );
     }
-  };
+  }, []);
 
   return (
     <LinearGradient
-      colors={['#F3F4F6', '#FFFFFF']}
+      colors={['#F5F5F7', '#FFFFFF']}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
-      className="flex-1"
+      style={styles.gradient}
     >
-    <KeyboardAvoidingView 
-      className="flex-1"
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-    >
-      <View className="flex-1">
-        {/* Header */}
-        <View className="px-6 pt-12 pb-4">
-          <View className="flex-row items-center">
-            <Text 
-              className="text-2xl font-semibold text-slate-900"
-              accessibilityRole="header"
-            >
-              Spot
-            </Text>
-            {profile?.is_pro && (
-              <View className="ml-3">
-                <ProBadge size="sm" />
-              </View>
-            )}
-          </View>
-          <Text 
-            className="text-slate-500 text-sm mt-1"
-            accessibilityRole="text"
-          >
-            Your financial assistant
-          </Text>
-        </View>
-
-        {/* Messages List */}
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          renderItem={renderMessage}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingVertical: 16 }}
-          ListFooterComponent={
-            isLoading ? (
-              <View className="flex-row justify-start mb-4 px-4">
-                <View className="bg-slate-200 rounded-2xl rounded-tl-sm px-4 py-3">
-                  <ActivityIndicator size="small" color="#64748B" />
+      <KeyboardAvoidingView 
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      >
+        <View style={styles.content}>
+          {/* Header */}
+          <View style={styles.header}>
+            <View style={styles.headerRow}>
+              <View style={styles.logoContainer}>
+                <View style={styles.logoCircle}>
+                  <NativeIcon name="sparkles" size={20} color="#007AFF" />
                 </View>
               </View>
-            ) : null
-          }
-        />
+              <View style={styles.titleContainer}>
+                <Text style={styles.title} accessibilityRole="header">
+                  Spot
+                </Text>
+                {profile?.is_pro && (
+                  <View style={styles.badgeContainer}>
+                    <ProBadge size="sm" />
+                  </View>
+                )}
+              </View>
+            </View>
+            <Text style={styles.subtitle} accessibilityRole="text">
+              Your Financial Coach
+            </Text>
+          </View>
 
-        {/* Input Area */}
-        <View className="bg-white border-t border-purple-100 px-4 py-3">
-          <View className="flex-row items-center">
-            <TextInput
-              value={inputText}
-              onChangeText={setInputText}
-              placeholder="Ask Spot..."
-              placeholderTextColor="#94A3B8"
-              className="flex-1 bg-purple-50 border border-purple-100 rounded-2xl px-4 py-3 text-slate-900 mr-3"
-              multiline
-              maxLength={500}
-              editable={!isLoading}
-              style={{ caretColor: '#9333EA' }}
-              accessibilityLabel="Message input"
-              accessibilityHint="Type your question for Spot"
-            />
-            <TouchableOpacity
-              onPress={handleSend}
-              disabled={!inputText.trim() || isLoading || isOffline}
-              className={`w-12 h-12 rounded-full bg-purple-600 items-center justify-center ${
-                !inputText.trim() || isLoading || isOffline ? 'opacity-50' : ''
-              }`}
-              accessibilityRole="button"
-              accessibilityLabel="Send message"
-              accessibilityHint={isOffline ? "Requires internet connection. You are currently offline." : "Sends your message to Spot"}
-              accessibilityState={{ disabled: !inputText.trim() || isLoading || isOffline }}
-            >
-              {isLoading ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
-              ) : (
-                <NativeIcon name="send" size={20} color="#FFFFFF" />
-              )}
-            </TouchableOpacity>
+          {/* Messages List */}
+          <FlatList
+            ref={flatListRef}
+            data={messages}
+            renderItem={renderMessage}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.messagesList}
+            removeClippedSubviews={true}
+            maxToRenderPerBatch={10}
+            windowSize={10}
+            ListFooterComponent={
+              isLoading ? (
+                <View style={styles.messageRowLeft}>
+                  <View style={styles.aiMessage}>
+                    <ActivityIndicator size="small" color="#8E8E93" />
+                  </View>
+                </View>
+              ) : null
+            }
+          />
+
+          {/* Input Area */}
+          <View style={styles.inputContainer}>
+            <View style={styles.inputRow}>
+              <TextInput
+                value={inputText}
+                onChangeText={setInputText}
+                placeholder="Ask me anything..."
+                placeholderTextColor="#8E8E93"
+                style={styles.textInput}
+                multiline
+                maxLength={500}
+                editable={!isLoading}
+                accessibilityLabel="Message input"
+                accessibilityHint="Type your question for Spot"
+                returnKeyType="send"
+                onSubmitEditing={handleSend}
+              />
+              <TouchableOpacity
+                onPress={handleSend}
+                disabled={!inputText.trim() || isLoading || isOffline}
+                style={[
+                  styles.sendButton,
+                  (!inputText.trim() || isLoading || isOffline) && styles.sendButtonDisabled
+                ]}
+                accessibilityRole="button"
+                accessibilityLabel="Send message"
+                accessibilityState={{ disabled: !inputText.trim() || isLoading || isOffline }}
+                activeOpacity={0.7}
+              >
+                {isLoading ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <NativeIcon name="send" size={18} color="#FFFFFF" />
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
-      <Toast
-        message={toastMessage}
-        type="error"
-        visible={toastVisible}
-        onHide={() => setToastVisible(false)}
-      />
-      <TabBar />
-    </KeyboardAvoidingView>
+        <Toast
+          message={toastMessage}
+          type="error"
+          visible={toastVisible}
+          onHide={() => setToastVisible(false)}
+        />
+        <TabBar />
+      </KeyboardAvoidingView>
     </LinearGradient>
   );
 }
+
+const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+  },
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 20,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  logoContainer: {
+    marginRight: 12,
+  },
+  logoCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#E3F2FD',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  title: {
+    fontSize: 34,
+    fontWeight: '700',
+    color: '#000000',
+    letterSpacing: -0.6,
+  },
+  badgeContainer: {
+    marginLeft: 12,
+  },
+  subtitle: {
+    color: '#8E8E93',
+    fontSize: 17,
+    paddingLeft: 48,
+    fontWeight: '400',
+  },
+  messagesList: {
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+  },
+  messageRowRight: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginBottom: 12,
+  },
+  messageRowLeft: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    marginBottom: 12,
+  },
+  userMessage: {
+    backgroundColor: '#007AFF',
+    borderRadius: 20,
+    borderTopRightRadius: 4,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    maxWidth: '80%',
+  },
+  userMessageText: {
+    color: '#FFFFFF',
+    fontSize: 17,
+    fontWeight: '400',
+    lineHeight: 22,
+  },
+  aiMessage: {
+    backgroundColor: '#E5E5EA',
+    borderRadius: 20,
+    borderTopLeftRadius: 4,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    maxWidth: '80%',
+  },
+  aiMessageText: {
+    color: '#000000',
+    fontSize: 17,
+    fontWeight: '400',
+    lineHeight: 22,
+  },
+  inputContainer: {
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 0.5,
+    borderTopColor: '#E5E5EA',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    paddingBottom: Platform.OS === 'ios' ? 20 : 12,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 10,
+  },
+  textInput: {
+    flex: 1,
+    backgroundColor: '#F2F2F7',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    color: '#000000',
+    fontSize: 17,
+    maxHeight: 100,
+    fontWeight: '400',
+  },
+  sendButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#007AFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sendButtonDisabled: {
+    opacity: 0.4,
+  },
+});

@@ -9,7 +9,7 @@ export default function Index() {
   }
 
   if (session) {
-    return <Redirect href="/(tabs)/dashboard" />;
+    return <Redirect href="/(tabs)/" />;
   }
 
   return <Redirect href="/(auth)/login" />;
