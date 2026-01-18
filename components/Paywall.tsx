@@ -230,6 +230,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.3,
     shadowRadius: 20,
+    alignSelf: 'flex-end',
   },
   handleBar: {
     alignItems: 'center',
@@ -291,7 +292,7 @@ const styles = StyleSheet.create({
     marginRight: -8,
   },
   scrollView: {
-    flex: 1,
+    flexShrink: 1,
   },
   scrollContent: {
     padding: 20,

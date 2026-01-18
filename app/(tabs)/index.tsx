@@ -85,7 +85,7 @@ export default function DashboardScreen() {
     return filtered;
   }, [items, debouncedSearchQuery, selectedChip]);
 
-  const handleMarkDone = async (itemId: string, currentExpiry: string | null) => {
+  const handleMarkDone = useCallback(async (itemId: string, currentExpiry: string | null) => {
     if (!currentExpiry) return;
 
     try {
@@ -103,7 +103,7 @@ export default function DashboardScreen() {
         console.error('Mark done error:', error);
       }
     }
-  };
+  }, [refetch]);
 
   const handleDelete = async (itemId: string) => {
     deleteItem(itemId);
@@ -115,7 +115,7 @@ export default function DashboardScreen() {
 
   const handleMarkDoneCallback = useCallback(async (itemId: string, currentExpiry: string | null) => {
     await handleMarkDone(itemId, currentExpiry);
-  }, []);
+  }, [handleMarkDone]);
 
   const renderItem = useCallback(({ item }: { item: typeof items[0] }) => {
     const daysUntilExpiry = calculateDaysUntilExpiry(item.expiry_date);

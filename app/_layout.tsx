@@ -117,12 +117,16 @@ export default function RootLayout() {
     // This is a known issue that doesn't affect app functionality
     const errorHandler = ErrorUtils.getGlobalHandler();
     ErrorUtils.setGlobalHandler((error: Error, isFatal?: boolean) => {
-      // Filter out non-critical keep-awake errors
-      if (error?.message?.includes('Unable to activate keep awake')) {
-        // Silently ignore - this is non-critical
+      // Filter out specific non-critical keep-awake errors (log for debugging)
+      const keepAwakeErrorPattern = /^Unable to activate keep awake/;
+      if (error?.message && keepAwakeErrorPattern.test(error.message) && !isFatal) {
+        // Log in dev mode for debugging, but don't crash the app
+        if (__DEV__) {
+          console.warn('[Non-critical] Keep-awake error suppressed:', error.message);
+        }
         return;
       }
-      // Call original error handler for other errors
+      // Call original error handler for all other errors
       if (errorHandler) {
         errorHandler(error, isFatal);
       }
