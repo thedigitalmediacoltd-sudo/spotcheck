@@ -65,6 +65,18 @@ target 'SpotCheck' do
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
         config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = ""
+        
+        # Fix: Exclude MLImage framework for simulator builds (device-only framework)
+        # Remove MLImage from OTHER_LDFLAGS for simulator builds
+        other_ldflags = config.build_settings["OTHER_LDFLAGS"] || []
+        if other_ldflags.is_a?(String)
+          other_ldflags = other_ldflags.split(/\s+/)
+        end
+        
+        simulator_ldflags = other_ldflags.reject { |flag| flag.to_s.include?("MLImage") }
+        if simulator_ldflags != other_ldflags
+          config.build_settings["OTHER_LDFLAGS[sdk=iphonesimulator*]"] = simulator_ldflags
+        end
       end
     end
     
@@ -94,6 +106,17 @@ target 'SpotCheck' do
             if simulator_paths != paths_array && simulator_paths.any?
               config.build_settings["FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*]"] = simulator_paths
             end
+          end
+          
+          # Also exclude MLImage from linker flags for simulator
+          other_ldflags = config.build_settings["OTHER_LDFLAGS"] || []
+          if other_ldflags.is_a?(String)
+            other_ldflags = other_ldflags.split(/\s+/)
+          end
+          
+          simulator_ldflags = other_ldflags.reject { |flag| flag.to_s.include?("MLImage") }
+          if simulator_ldflags != other_ldflags
+            config.build_settings["OTHER_LDFLAGS[sdk=iphonesimulator*]"] = simulator_ldflags
           end
         end
       end
