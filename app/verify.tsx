@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
@@ -153,24 +153,35 @@ export default function VerifyScreen() {
       end={{ x: 0, y: 1 }}
       style={styles.gradient}
     >
-      <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle} accessibilityRole="header">
-            Verify Details
-          </Text>
-          <TouchableOpacity 
-            onPress={() => router.back()}
-            style={styles.closeButton}
-            accessibilityRole="button"
-            accessibilityLabel="Close"
-            activeOpacity={0.7}
-          >
-            <NativeIcon name="close" size={22} color="#8E8E93" />
-          </TouchableOpacity>
-        </View>
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+      >
+        <View style={styles.container}>
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.headerTitle} accessibilityRole="header">
+              Verify Details
+            </Text>
+            <TouchableOpacity 
+              onPress={() => router.back()}
+              style={styles.closeButton}
+              accessibilityRole="button"
+              accessibilityLabel="Close"
+              activeOpacity={0.7}
+            >
+              <NativeIcon name="close" size={22} color="#8E8E93" />
+            </TouchableOpacity>
+          </View>
 
-        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+          <ScrollView
+            ref={scrollViewRef}
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
           {/* Category Picker - Horizontal Scroll */}
           <View style={styles.categorySection}>
             <Text style={styles.label} accessibilityRole="text">
@@ -286,7 +297,8 @@ export default function VerifyScreen() {
             </Text>
           </TouchableOpacity>
         </ScrollView>
-      </View>
+        </View>
+      </KeyboardAvoidingView>
       <Toast
         message={toastMessage}
         type="success"
@@ -299,6 +311,9 @@ export default function VerifyScreen() {
 
 const styles = StyleSheet.create({
   gradient: {
+    flex: 1,
+  },
+  keyboardView: {
     flex: 1,
   },
   container: {
@@ -337,6 +352,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 20,
+    paddingBottom: 60,
   },
   categorySection: {
     marginBottom: 28,

@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Platform,
   StyleSheet,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -98,11 +99,17 @@ export default function LoginScreen() {
       end={{ x: 0, y: 1 }}
       style={styles.gradient}
     >
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerTitle} accessibilityRole="header">
@@ -132,7 +139,7 @@ export default function LoginScreen() {
                 <AppleAuthentication.AppleAuthenticationButton
                   buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
                   buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-                  cornerRadius={24}
+                  cornerRadius={14}
                   style={{ width: '100%', height: 50 }}
                   onPress={handleAppleSignIn}
                 />
@@ -149,8 +156,9 @@ export default function LoginScreen() {
               ]}
               accessibilityRole="button"
               accessibilityLabel="Continue with Google"
+              activeOpacity={0.7}
             >
-              <Text style={styles.googleButtonText}>G</Text>
+              <NativeIcon name="mail" size={20} color="#000000" />
               <Text style={styles.googleButtonLabel}>
                 Continue with Google
               </Text>
@@ -229,7 +237,8 @@ export default function LoginScreen() {
             </Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </LinearGradient>
   );
 }
@@ -238,11 +247,15 @@ const styles = StyleSheet.create({
   gradient: {
     flex: 1,
   },
+  keyboardView: {
+    flex: 1,
+  },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
+    paddingBottom: 40,
   },
   header: {
     paddingHorizontal: 24,
@@ -295,7 +308,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   appleButton: {
-    marginBottom: 16,
+    marginBottom: 12,
   },
   googleButton: {
     backgroundColor: '#FFFFFF',
@@ -307,13 +320,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  googleButtonText: {
-    color: '#000000',
-    fontWeight: '600',
-    fontSize: 17,
-    marginRight: 8,
-    letterSpacing: -0.2,
+    gap: 10,
   },
   googleButtonLabel: {
     color: '#000000',

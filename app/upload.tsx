@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, Alert, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, Alert, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { pickImage, pickDocument, processUploadedFile } from '@/services/upload';
@@ -240,7 +240,8 @@ export default function UploadScreen() {
             </>
           )}
         </View>
-      </View>
+        </View>
+      </KeyboardAvoidingView>
       <Toast
         message={toastMessage}
         type="success"
@@ -253,6 +254,9 @@ export default function UploadScreen() {
 
 const styles = StyleSheet.create({
   gradient: {
+    flex: 1,
+  },
+  keyboardView: {
     flex: 1,
   },
   container: {
