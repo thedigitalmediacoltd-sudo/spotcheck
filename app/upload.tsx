@@ -240,8 +240,7 @@ export default function UploadScreen() {
             </>
           )}
         </View>
-        </View>
-      </KeyboardAvoidingView>
+      </View>
       <Toast
         message={toastMessage}
         type="success"
