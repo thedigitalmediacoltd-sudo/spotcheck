@@ -69,10 +69,16 @@ export function Paywall({ visible, onClose }: PaywallProps) {
       animationType="slide"
       transparent
       onRequestClose={onClose}
-      presentationStyle={Platform.OS === 'ios' ? 'pageSheet' : 'fullScreen'}
+      presentationStyle="overFullScreen"
     >
-      <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable style={styles.modalContainer} onPress={(e) => e.stopPropagation()}>
+      <View style={styles.overlay}>
+        <Pressable 
+          style={styles.overlayPressable} 
+          onPress={onClose}
+          accessibilityRole="button"
+          accessibilityLabel="Close modal"
+        />
+        <View style={styles.modalContainer}>
           {/* Handle Bar */}
           {Platform.OS === 'ios' && (
             <View style={styles.handleBar}>
@@ -191,8 +197,8 @@ export function Paywall({ visible, onClose }: PaywallProps) {
               <Text style={styles.restoreButtonText}>Restore Purchases</Text>
             </TouchableOpacity>
           </ScrollView>
-        </Pressable>
-      </Pressable>
+        </View>
+      </View>
     </Modal>
   );
 }
@@ -203,12 +209,27 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
     justifyContent: 'flex-end',
   },
+  overlayPressable: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 0,
+  },
   modalContainer: {
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '90%',
     paddingBottom: Platform.OS === 'ios' ? 34 : 24,
+    width: '100%',
+    zIndex: 1,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
   },
   handleBar: {
     alignItems: 'center',
