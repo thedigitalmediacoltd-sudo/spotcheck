@@ -17,19 +17,19 @@ export function TabBar() {
 
   return (
     <View className="absolute bottom-5 left-5 right-5">
-      <View className="flex-row items-center justify-around bg-black rounded-full py-3 px-4 shadow-lg">
+      <View className="flex-row items-center justify-around bg-white border border-gray-200 rounded-full py-3 px-4 shadow-lg">
         <TouchableOpacity
           onPress={() => {
             triggerHaptic('light');
             router.push('/(tabs)/');
           }}
-          className={`flex-1 items-center ${isActive('/(tabs)/') || isActive('/(tabs)/index') ? 'opacity-100' : 'opacity-50'}`}
+          className={`flex-1 items-center ${isActive('/(tabs)/') || isActive('/(tabs)/index') ? '' : 'opacity-50'}`}
           accessibilityRole="tab"
           accessibilityLabel="Overview"
           accessibilityHint="View your items and savings overview"
           accessibilityState={{ selected: isActive('/(tabs)/') || isActive('/(tabs)/index') }}
         >
-          <NativeIcon name="home" size={24} color="#FFFFFF" />
+          <NativeIcon name="home" size={24} color={isActive('/(tabs)/') || isActive('/(tabs)/index') ? "#9333EA" : "#6B7280"} />
         </TouchableOpacity>
 
         {/* Center Capture Button - Floating, 1.5x larger */}
@@ -51,13 +51,13 @@ export function TabBar() {
             triggerHaptic('light');
             router.push('/(tabs)/chat');
           }}
-          className={`flex-1 items-center ${isActive('/(tabs)/chat') ? 'opacity-100' : 'opacity-50'}`}
+          className={`flex-1 items-center ${isActive('/(tabs)/chat') ? '' : 'opacity-50'}`}
           accessibilityRole="tab"
           accessibilityLabel="Spot"
           accessibilityHint="Chat with Spot, your financial assistant"
           accessibilityState={{ selected: isActive('/(tabs)/chat') }}
         >
-          <NativeIcon name="sparkles" size={24} color="#FFFFFF" />
+          <NativeIcon name="sparkles" size={24} color={isActive('/(tabs)/chat') ? "#9333EA" : "#6B7280"} />
         </TouchableOpacity>
       </View>
     </View>

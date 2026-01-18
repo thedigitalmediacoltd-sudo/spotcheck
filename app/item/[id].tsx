@@ -198,7 +198,7 @@ Yours sincerely,
   if (loading) {
     return (
       <LinearGradient
-        colors={['#F3E8FF', '#FFFFFF']}
+        colors={['#F3F4F6', '#FFFFFF']}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         className="flex-1 items-center justify-center"
@@ -212,7 +212,7 @@ Yours sincerely,
   if (!item) {
     return (
       <LinearGradient
-        colors={['#F3E8FF', '#FFFFFF']}
+        colors={['#F3F4F6', '#FFFFFF']}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         className="flex-1 items-center justify-center"

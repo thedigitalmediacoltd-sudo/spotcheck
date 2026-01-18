@@ -162,7 +162,7 @@ export default function SettingsScreen() {
 
   return (
     <LinearGradient
-      colors={['#F3E8FF', '#FFFFFF']}
+      colors={['#F3F4F6', '#FFFFFF']}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
       className="flex-1"

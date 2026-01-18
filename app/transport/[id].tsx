@@ -199,7 +199,7 @@ export default function VehicleDetailScreen() {
   if (vehicleLoading) {
     return (
       <LinearGradient
-        colors={['#F3E8FF', '#FFFFFF']}
+        colors={['#F3F4F6', '#FFFFFF']}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         className="flex-1 items-center justify-center"
@@ -213,7 +213,7 @@ export default function VehicleDetailScreen() {
   if (vehicleError || !vehicle) {
     return (
       <LinearGradient
-        colors={['#F3E8FF', '#FFFFFF']}
+        colors={['#F3F4F6', '#FFFFFF']}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         className="flex-1 items-center justify-center px-6"
@@ -238,7 +238,7 @@ export default function VehicleDetailScreen() {
 
   return (
     <LinearGradient
-      colors={['#F3E8FF', '#FFFFFF']}
+      colors={['#F3F4F6', '#FFFFFF']}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
       className="flex-1"

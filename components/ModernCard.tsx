@@ -14,7 +14,7 @@ export function ModernCard({
   touchableProps,
   ...props 
 }: ModernCardProps) {
-  const baseClassName = 'bg-white rounded-[32px] p-5 shadow-sm border border-gray-100';
+  const baseClassName = 'bg-white rounded-2xl p-5 shadow-sm border border-gray-100';
   
   if (onPress) {
     return (

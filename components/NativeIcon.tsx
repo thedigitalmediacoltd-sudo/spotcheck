@@ -51,6 +51,7 @@ type IconName =
   | 'wifi-off'
   | 'offline'
   | 'arrow-left'
+  | 'arrow-right'
   | 'back'
   | 'person-circle'
   | 'plus';
@@ -104,6 +105,7 @@ const ICON_MAP: Record<IconName, { ios: string; android: string }> = {
   'wifi-off': { ios: 'wifi.slash', android: 'wifi-off' },
   offline: { ios: 'wifi.slash', android: 'wifi-off' },
   'arrow-left': { ios: 'chevron.left', android: 'arrow-back' },
+  'arrow-right': { ios: 'chevron.right', android: 'arrow-forward' },
   back: { ios: 'chevron.left', android: 'arrow-back' },
   'person-circle': { ios: 'person.circle.fill', android: 'account-circle' },
   plus: { ios: 'plus', android: 'add' },

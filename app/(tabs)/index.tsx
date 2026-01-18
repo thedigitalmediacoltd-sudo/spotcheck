@@ -213,7 +213,7 @@ export default function DashboardScreen() {
       >
         <TouchableOpacity
           onPress={() => router.push(`/item/${item.id}`)}
-          className="bg-white rounded-3xl p-4 mb-3 mx-4 shadow-md border border-purple-50 flex-row items-center flex-wrap"
+          className="bg-white rounded-2xl p-4 mb-3 mx-4 shadow-md border border-purple-50 flex-row items-center flex-wrap"
           accessibilityRole="button"
           accessibilityLabel={`${item.title}, ${categoryText}, ${expiryText}`}
           accessibilityHint={`Opens details for ${item.title}`}
@@ -266,7 +266,7 @@ export default function DashboardScreen() {
   return (
     <GestureHandlerRootView className="flex-1">
     <LinearGradient
-      colors={['#F3E8FF', '#FFFFFF']}
+      colors={['#F3F4F6', '#FFFFFF']}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
       className="flex-1"
@@ -365,7 +365,7 @@ export default function DashboardScreen() {
         {/* Hero Section */}
         <View className="px-6 py-6">
           {totalSavings > 0 ? (
-            <View className="bg-white rounded-3xl p-6 shadow-md border border-purple-50">
+            <View className="bg-white rounded-2xl p-6 shadow-md border border-purple-50">
               <Text className="text-slate-500 text-sm mb-2">Total Potential Savings</Text>
               <Text className="text-4xl font-semibold text-purple-600 mb-1">
                 £{totalSavings.toFixed(0)}
@@ -375,7 +375,7 @@ export default function DashboardScreen() {
               </Text>
             </View>
           ) : nextExpiry ? (
-            <View className="bg-white rounded-3xl p-6 shadow-md border border-purple-50">
+            <View className="bg-white rounded-2xl p-6 shadow-md border border-purple-50">
               <Text className="text-slate-500 text-sm mb-2">Next Expiry</Text>
               <Text className="text-2xl font-semibold text-slate-900 mb-1">
                 {nextExpiry.title}
@@ -385,7 +385,7 @@ export default function DashboardScreen() {
               </Text>
             </View>
           ) : (
-            <View className="bg-white rounded-3xl p-6 shadow-md border border-purple-50">
+            <View className="bg-white rounded-2xl p-6 shadow-md border border-purple-50">
               <Text className="text-slate-500 text-sm mb-2">All Set</Text>
               <Text className="text-2xl font-semibold text-slate-900">
                 No urgent items
