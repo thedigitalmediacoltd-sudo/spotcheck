@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, StyleSheet, Modal, Pressable } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -33,6 +33,7 @@ export default function DashboardScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [selectedChip, setSelectedChip] = useState<FilterChip>('All');
+  const [showAddModal, setShowAddModal] = useState(false);
   const { items, isLoading, refetch, deleteItem } = useItems(user?.id);
   const { isOffline } = useNetworkStatus();
 
@@ -289,7 +290,7 @@ export default function DashboardScreen() {
 
           {/* Search Bar */}
           <View style={styles.searchBar}>
-            <NativeIcon name="search" size={18} color="#8E8E93" />
+            <NativeIcon name="search" size={16} color="#8E8E93" />
             <TextInput
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -383,16 +384,102 @@ export default function DashboardScreen() {
         <TouchableOpacity
           onPress={() => {
             triggerHaptic('light');
-            router.push('/(tabs)/scan');
+            setShowAddModal(true);
           }}
           style={styles.fab}
           accessibilityRole="button"
-          accessibilityLabel="Scan document"
+          accessibilityLabel="Add item"
           activeOpacity={0.8}
         >
           <NativeIcon name="plus" size={24} color="#FFFFFF" />
         </TouchableOpacity>
       </LinearGradient>
+
+      {/* Add Item Modal */}
+      <Modal
+        visible={showAddModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowAddModal(false)}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setShowAddModal(false)}
+        >
+          <Pressable
+            style={styles.modalContent}
+            onPress={(e) => e.stopPropagation()}
+          >
+            <Text style={styles.modalTitle}>Add Item</Text>
+            <Text style={styles.modalSubtitle}>Choose how you want to add an item</Text>
+
+            <TouchableOpacity
+              onPress={() => {
+                triggerHaptic('light');
+                setShowAddModal(false);
+                router.push('/(tabs)/scan');
+              }}
+              style={styles.modalButton}
+              activeOpacity={0.7}
+            >
+              <View style={styles.modalButtonIcon}>
+                <NativeIcon name="camera" size={24} color="#007AFF" />
+              </View>
+              <View style={styles.modalButtonContent}>
+                <Text style={styles.modalButtonTitle}>Scan Document</Text>
+                <Text style={styles.modalButtonSubtitle}>Take a photo and extract details</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => {
+                triggerHaptic('light');
+                setShowAddModal(false);
+                router.push('/upload');
+              }}
+              style={styles.modalButton}
+              activeOpacity={0.7}
+            >
+              <View style={styles.modalButtonIcon}>
+                <NativeIcon name="file-text" size={24} color="#007AFF" />
+              </View>
+              <View style={styles.modalButtonContent}>
+                <Text style={styles.modalButtonTitle}>Upload Document</Text>
+                <Text style={styles.modalButtonSubtitle}>Upload PDF or image file</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => {
+                triggerHaptic('light');
+                setShowAddModal(false);
+                router.push('/add');
+              }}
+              style={styles.modalButton}
+              activeOpacity={0.7}
+            >
+              <View style={styles.modalButtonIcon}>
+                <NativeIcon name="plus" size={24} color="#007AFF" />
+              </View>
+              <View style={styles.modalButtonContent}>
+                <Text style={styles.modalButtonTitle}>Add Manually</Text>
+                <Text style={styles.modalButtonSubtitle}>Enter details yourself</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => {
+                triggerHaptic('light');
+                setShowAddModal(false);
+              }}
+              style={styles.modalCancelButton}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.modalCancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </GestureHandlerRootView>
   );
 }
@@ -426,16 +513,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 32,
+    marginBottom: 24,
   },
   greetingContainer: {
     flex: 1,
   },
   greeting: {
-    fontSize: 34,
+    fontSize: 22,
     fontWeight: '700',
     color: '#000000',
-    letterSpacing: -0.4,
+    letterSpacing: -0.3,
   },
   settingsButton: {
     padding: 8,
@@ -480,19 +567,22 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     backgroundColor: '#F2F2F7',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
-    gap: 12,
+    marginBottom: 16,
+    gap: 10,
+    minHeight: 36,
   },
   searchInput: {
     flex: 1,
-    fontSize: 17,
+    fontSize: 15,
     color: '#000000',
     fontWeight: '400',
+    paddingVertical: 0,
+    minHeight: 20,
   },
   filterChipsScroll: {
     marginBottom: 4,
@@ -659,5 +749,84 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 12,
     elevation: 8,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingTop: 24,
+    paddingBottom: 40,
+    paddingHorizontal: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 8,
+  },
+  modalTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#000000',
+    marginBottom: 8,
+    letterSpacing: -0.6,
+    textAlign: 'center',
+  },
+  modalSubtitle: {
+    fontSize: 17,
+    color: '#8E8E93',
+    marginBottom: 32,
+    textAlign: 'center',
+    fontWeight: '400',
+  },
+  modalButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F2F2F7',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 12,
+    borderWidth: 0.5,
+    borderColor: '#E5E5EA',
+  },
+  modalButtonIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  modalButtonContent: {
+    flex: 1,
+  },
+  modalButtonTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#000000',
+    marginBottom: 4,
+    letterSpacing: -0.2,
+  },
+  modalButtonSubtitle: {
+    fontSize: 15,
+    color: '#8E8E93',
+    fontWeight: '400',
+  },
+  modalCancelButton: {
+    marginTop: 8,
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalCancelText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#007AFF',
+    letterSpacing: -0.2,
   },
 });

@@ -141,6 +141,21 @@ export function Paywall({ visible, onClose }: PaywallProps) {
                     </View>
                   </View>
 
+                  {/* Document Upload Row */}
+                  <View className="flex-row px-4 py-4 border-b border-slate-200">
+                    <View className="flex-1">
+                      <Text className="text-slate-900 font-semibold text-sm">
+                        Document Upload
+                      </Text>
+                    </View>
+                    <View className="w-20 items-center">
+                      <Text className="text-slate-400 text-lg">❌</Text>
+                    </View>
+                    <View className="w-20 items-center">
+                      <NativeIcon name="check" size={20} color="#059669" />
+                    </View>
+                  </View>
+
                   {/* App Lock Row - Available for all */}
                   <View className="flex-row px-4 py-4">
                     <View className="flex-1">
